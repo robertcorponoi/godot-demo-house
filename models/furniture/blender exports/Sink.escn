@@ -1,0 +1,826 @@
+[gd_scene load_steps=1 format=2]
+
+[sub_resource id=1 type="Shader"]
+
+resource_name = "Shader Nodetree"
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+
+
+void node_bsdf_principled(vec4 color, float subsurface, vec4 subsurface_color,
+        float metallic, float specular, float roughness, float clearcoat,
+        float clearcoat_roughness, float anisotropy, float transmission,
+        float IOR, out vec3 albedo, out float sss_strength_out,
+        out float metallic_out, out float specular_out,
+        out float roughness_out, out float clearcoat_out,
+        out float clearcoat_gloss_out, out float anisotropy_out,
+        out float transmission_out, out float ior) {
+    metallic = clamp(metallic, 0.0, 1.0);
+    transmission = clamp(transmission, 0.0, 1.0);
+
+    subsurface = subsurface * (1.0 - metallic);
+
+    albedo = mix(color.rgb, subsurface_color.rgb, subsurface);
+    sss_strength_out = subsurface;
+    metallic_out = metallic;
+    specular_out = pow((IOR - 1.0)/(IOR + 1.0), 2)/0.08;
+    roughness_out = roughness;
+    clearcoat_out = clearcoat * (1.0 - transmission);
+    clearcoat_gloss_out = 1.0 - clearcoat_roughness;
+    anisotropy_out = clamp(anisotropy, 0.0, 1.0);
+    transmission_out = (1.0 - transmission) * (1.0 - metallic);
+    ior = IOR;
+}
+
+void vertex () {
+}
+
+void fragment () {
+	
+	// node: 'Principled BSDF'
+	// type: 'ShaderNodeBsdfPrincipled'
+	// input sockets handling
+	vec4 node0_in0_basecolor = vec4(0.8962264060974121, 0.6015712022781372,
+		0.39315590262413025, 1.0);
+	float node0_in1_subsurface = float(0.0);
+	vec3 node0_in2_subsurfaceradius = vec3(1.0, 0.20000000298023224,
+		0.10000000149011612);
+	vec4 node0_in3_subsurfacecolor = vec4(0.800000011920929, 0.800000011920929,
+		0.800000011920929, 1.0);
+	float node0_in4_metallic = float(0.0);
+	float node0_in5_specular = float(0.5);
+	float node0_in6_speculartint = float(0.0);
+	float node0_in7_roughness = float(1.0);
+	float node0_in8_anisotropic = float(0.0);
+	float node0_in9_anisotropicrotation = float(0.0);
+	float node0_in10_sheen = float(0.0);
+	float node0_in11_sheentint = float(0.5);
+	float node0_in12_clearcoat = float(0.0);
+	float node0_in13_clearcoatroughness = float(0.029999999329447746);
+	float node0_in14_ior = float(1.4500000476837158);
+	float node0_in15_transmission = float(0.0);
+	float node0_in16_transmissionroughness = float(0.0);
+	vec4 node0_in17_emission = vec4(0.0, 0.0, 0.0, 1.0);
+	float node0_in18_alpha = float(1.0);
+	vec3 node0_in19_normal = NORMAL;
+	vec3 node0_in20_clearcoatnormal = vec3(0.0, 0.0, 0.0);
+	vec3 node0_in21_tangent = TANGENT;
+	// output sockets definitions
+	vec3 node0_bsdf_out0_albedo;
+	float node0_bsdf_out1_sss_strength;
+	float node0_bsdf_out3_specular;
+	float node0_bsdf_out2_metallic;
+	float node0_bsdf_out4_roughness;
+	float node0_bsdf_out5_clearcoat;
+	float node0_bsdf_out6_clearcoat_gloss;
+	float node0_bsdf_out7_anisotropy;
+	float node0_bsdf_out8_transmission;
+	float node0_bsdf_out9_ior;
+	
+	node_bsdf_principled(node0_in0_basecolor, node0_in1_subsurface,
+		node0_in3_subsurfacecolor, node0_in4_metallic, node0_in5_specular,
+		node0_in7_roughness, node0_in12_clearcoat, node0_in13_clearcoatroughness,
+		node0_in8_anisotropic, node0_in15_transmission, node0_in14_ior,
+		node0_bsdf_out0_albedo, node0_bsdf_out1_sss_strength, node0_bsdf_out2_metallic,
+		node0_bsdf_out3_specular, node0_bsdf_out4_roughness, node0_bsdf_out5_clearcoat,
+		node0_bsdf_out6_clearcoat_gloss, node0_bsdf_out7_anisotropy,
+		node0_bsdf_out8_transmission, node0_bsdf_out9_ior);
+	
+	
+	ALBEDO = node0_bsdf_out0_albedo;
+	SSS_STRENGTH = node0_bsdf_out1_sss_strength;
+	SPECULAR = node0_bsdf_out3_specular;
+	METALLIC = node0_bsdf_out2_metallic;
+	ROUGHNESS = node0_bsdf_out4_roughness;
+	CLEARCOAT = node0_bsdf_out5_clearcoat;
+	CLEARCOAT_GLOSS = node0_bsdf_out6_clearcoat_gloss;
+	NORMAL = node0_in19_normal;
+	// uncomment it when you need it
+	// TRANSMISSION = vec3(1.0, 1.0, 1.0) * node0_bsdf_out8_transmission;
+	// uncomment it when you are modifing TANGENT
+	// TANGENT = normalize(cross(cross(node0_in21_tangent, NORMAL), NORMAL));
+	// BINORMAL = cross(TANGENT, NORMAL);
+	// uncomment it when you have tangent(UV) set
+	// ANISOTROPY = node0_bsdf_out7_anisotropy;
+}
+"
+
+[sub_resource id=2 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(1)
+
+[sub_resource id=3 type="Shader"]
+
+resource_name = "Shader Nodetree"
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+
+
+void node_bsdf_principled(vec4 color, float subsurface, vec4 subsurface_color,
+        float metallic, float specular, float roughness, float clearcoat,
+        float clearcoat_roughness, float anisotropy, float transmission,
+        float IOR, out vec3 albedo, out float sss_strength_out,
+        out float metallic_out, out float specular_out,
+        out float roughness_out, out float clearcoat_out,
+        out float clearcoat_gloss_out, out float anisotropy_out,
+        out float transmission_out, out float ior) {
+    metallic = clamp(metallic, 0.0, 1.0);
+    transmission = clamp(transmission, 0.0, 1.0);
+
+    subsurface = subsurface * (1.0 - metallic);
+
+    albedo = mix(color.rgb, subsurface_color.rgb, subsurface);
+    sss_strength_out = subsurface;
+    metallic_out = metallic;
+    specular_out = pow((IOR - 1.0)/(IOR + 1.0), 2)/0.08;
+    roughness_out = roughness;
+    clearcoat_out = clearcoat * (1.0 - transmission);
+    clearcoat_gloss_out = 1.0 - clearcoat_roughness;
+    anisotropy_out = clamp(anisotropy, 0.0, 1.0);
+    transmission_out = (1.0 - transmission) * (1.0 - metallic);
+    ior = IOR;
+}
+
+void vertex () {
+}
+
+void fragment () {
+	
+	// node: 'Principled BSDF'
+	// type: 'ShaderNodeBsdfPrincipled'
+	// input sockets handling
+	vec4 node0_in0_basecolor = vec4(0.7406105399131775, 0.8228667378425598,
+		0.8396226167678833, 1.0);
+	float node0_in1_subsurface = float(0.0);
+	vec3 node0_in2_subsurfaceradius = vec3(1.0, 0.20000000298023224,
+		0.10000000149011612);
+	vec4 node0_in3_subsurfacecolor = vec4(0.800000011920929, 0.800000011920929,
+		0.800000011920929, 1.0);
+	float node0_in4_metallic = float(0.0);
+	float node0_in5_specular = float(0.5);
+	float node0_in6_speculartint = float(0.0);
+	float node0_in7_roughness = float(1.0);
+	float node0_in8_anisotropic = float(0.0);
+	float node0_in9_anisotropicrotation = float(0.0);
+	float node0_in10_sheen = float(0.0);
+	float node0_in11_sheentint = float(0.5);
+	float node0_in12_clearcoat = float(0.0);
+	float node0_in13_clearcoatroughness = float(0.029999999329447746);
+	float node0_in14_ior = float(1.4500000476837158);
+	float node0_in15_transmission = float(0.0);
+	float node0_in16_transmissionroughness = float(0.0);
+	vec4 node0_in17_emission = vec4(0.0, 0.0, 0.0, 1.0);
+	float node0_in18_alpha = float(1.0);
+	vec3 node0_in19_normal = NORMAL;
+	vec3 node0_in20_clearcoatnormal = vec3(0.0, 0.0, 0.0);
+	vec3 node0_in21_tangent = TANGENT;
+	// output sockets definitions
+	vec3 node0_bsdf_out0_albedo;
+	float node0_bsdf_out1_sss_strength;
+	float node0_bsdf_out3_specular;
+	float node0_bsdf_out2_metallic;
+	float node0_bsdf_out4_roughness;
+	float node0_bsdf_out5_clearcoat;
+	float node0_bsdf_out6_clearcoat_gloss;
+	float node0_bsdf_out7_anisotropy;
+	float node0_bsdf_out8_transmission;
+	float node0_bsdf_out9_ior;
+	
+	node_bsdf_principled(node0_in0_basecolor, node0_in1_subsurface,
+		node0_in3_subsurfacecolor, node0_in4_metallic, node0_in5_specular,
+		node0_in7_roughness, node0_in12_clearcoat, node0_in13_clearcoatroughness,
+		node0_in8_anisotropic, node0_in15_transmission, node0_in14_ior,
+		node0_bsdf_out0_albedo, node0_bsdf_out1_sss_strength, node0_bsdf_out2_metallic,
+		node0_bsdf_out3_specular, node0_bsdf_out4_roughness, node0_bsdf_out5_clearcoat,
+		node0_bsdf_out6_clearcoat_gloss, node0_bsdf_out7_anisotropy,
+		node0_bsdf_out8_transmission, node0_bsdf_out9_ior);
+	
+	
+	ALBEDO = node0_bsdf_out0_albedo;
+	SSS_STRENGTH = node0_bsdf_out1_sss_strength;
+	SPECULAR = node0_bsdf_out3_specular;
+	METALLIC = node0_bsdf_out2_metallic;
+	ROUGHNESS = node0_bsdf_out4_roughness;
+	CLEARCOAT = node0_bsdf_out5_clearcoat;
+	CLEARCOAT_GLOSS = node0_bsdf_out6_clearcoat_gloss;
+	NORMAL = node0_in19_normal;
+	// uncomment it when you need it
+	// TRANSMISSION = vec3(1.0, 1.0, 1.0) * node0_bsdf_out8_transmission;
+	// uncomment it when you are modifing TANGENT
+	// TANGENT = normalize(cross(cross(node0_in21_tangent, NORMAL), NORMAL));
+	// BINORMAL = cross(TANGENT, NORMAL);
+	// uncomment it when you have tangent(UV) set
+	// ANISOTROPY = node0_bsdf_out7_anisotropy;
+}
+"
+
+[sub_resource id=4 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(3)
+
+[sub_resource id=5 type="Shader"]
+
+resource_name = "Shader Nodetree"
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+
+
+void node_bsdf_principled(vec4 color, float subsurface, vec4 subsurface_color,
+        float metallic, float specular, float roughness, float clearcoat,
+        float clearcoat_roughness, float anisotropy, float transmission,
+        float IOR, out vec3 albedo, out float sss_strength_out,
+        out float metallic_out, out float specular_out,
+        out float roughness_out, out float clearcoat_out,
+        out float clearcoat_gloss_out, out float anisotropy_out,
+        out float transmission_out, out float ior) {
+    metallic = clamp(metallic, 0.0, 1.0);
+    transmission = clamp(transmission, 0.0, 1.0);
+
+    subsurface = subsurface * (1.0 - metallic);
+
+    albedo = mix(color.rgb, subsurface_color.rgb, subsurface);
+    sss_strength_out = subsurface;
+    metallic_out = metallic;
+    specular_out = pow((IOR - 1.0)/(IOR + 1.0), 2)/0.08;
+    roughness_out = roughness;
+    clearcoat_out = clearcoat * (1.0 - transmission);
+    clearcoat_gloss_out = 1.0 - clearcoat_roughness;
+    anisotropy_out = clamp(anisotropy, 0.0, 1.0);
+    transmission_out = (1.0 - transmission) * (1.0 - metallic);
+    ior = IOR;
+}
+
+void vertex () {
+}
+
+void fragment () {
+	
+	// node: 'Principled BSDF'
+	// type: 'ShaderNodeBsdfPrincipled'
+	// input sockets handling
+	vec4 node0_in0_basecolor = vec4(0.30588236451148987, 0.38823530077934265,
+		0.38823530077934265, 1.0);
+	float node0_in1_subsurface = float(0.0);
+	vec3 node0_in2_subsurfaceradius = vec3(1.0, 0.20000000298023224,
+		0.10000000149011612);
+	vec4 node0_in3_subsurfacecolor = vec4(0.800000011920929, 0.800000011920929,
+		0.800000011920929, 1.0);
+	float node0_in4_metallic = float(0.0);
+	float node0_in5_specular = float(0.5);
+	float node0_in6_speculartint = float(0.0);
+	float node0_in7_roughness = float(1.0);
+	float node0_in8_anisotropic = float(0.0);
+	float node0_in9_anisotropicrotation = float(0.0);
+	float node0_in10_sheen = float(0.0);
+	float node0_in11_sheentint = float(0.5);
+	float node0_in12_clearcoat = float(0.0);
+	float node0_in13_clearcoatroughness = float(0.029999999329447746);
+	float node0_in14_ior = float(1.4500000476837158);
+	float node0_in15_transmission = float(0.0);
+	float node0_in16_transmissionroughness = float(0.0);
+	vec4 node0_in17_emission = vec4(0.0, 0.0, 0.0, 1.0);
+	float node0_in18_alpha = float(1.0);
+	vec3 node0_in19_normal = NORMAL;
+	vec3 node0_in20_clearcoatnormal = vec3(0.0, 0.0, 0.0);
+	vec3 node0_in21_tangent = TANGENT;
+	// output sockets definitions
+	vec3 node0_bsdf_out0_albedo;
+	float node0_bsdf_out1_sss_strength;
+	float node0_bsdf_out3_specular;
+	float node0_bsdf_out2_metallic;
+	float node0_bsdf_out4_roughness;
+	float node0_bsdf_out5_clearcoat;
+	float node0_bsdf_out6_clearcoat_gloss;
+	float node0_bsdf_out7_anisotropy;
+	float node0_bsdf_out8_transmission;
+	float node0_bsdf_out9_ior;
+	
+	node_bsdf_principled(node0_in0_basecolor, node0_in1_subsurface,
+		node0_in3_subsurfacecolor, node0_in4_metallic, node0_in5_specular,
+		node0_in7_roughness, node0_in12_clearcoat, node0_in13_clearcoatroughness,
+		node0_in8_anisotropic, node0_in15_transmission, node0_in14_ior,
+		node0_bsdf_out0_albedo, node0_bsdf_out1_sss_strength, node0_bsdf_out2_metallic,
+		node0_bsdf_out3_specular, node0_bsdf_out4_roughness, node0_bsdf_out5_clearcoat,
+		node0_bsdf_out6_clearcoat_gloss, node0_bsdf_out7_anisotropy,
+		node0_bsdf_out8_transmission, node0_bsdf_out9_ior);
+	
+	
+	ALBEDO = node0_bsdf_out0_albedo;
+	SSS_STRENGTH = node0_bsdf_out1_sss_strength;
+	SPECULAR = node0_bsdf_out3_specular;
+	METALLIC = node0_bsdf_out2_metallic;
+	ROUGHNESS = node0_bsdf_out4_roughness;
+	CLEARCOAT = node0_bsdf_out5_clearcoat;
+	CLEARCOAT_GLOSS = node0_bsdf_out6_clearcoat_gloss;
+	NORMAL = node0_in19_normal;
+	// uncomment it when you need it
+	// TRANSMISSION = vec3(1.0, 1.0, 1.0) * node0_bsdf_out8_transmission;
+	// uncomment it when you are modifing TANGENT
+	// TANGENT = normalize(cross(cross(node0_in21_tangent, NORMAL), NORMAL));
+	// BINORMAL = cross(TANGENT, NORMAL);
+	// uncomment it when you have tangent(UV) set
+	// ANISOTROPY = node0_bsdf_out7_anisotropy;
+}
+"
+
+[sub_resource id=6 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(5)
+
+[sub_resource id=7 type="Shader"]
+
+resource_name = "Shader Nodetree"
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+
+
+void node_bsdf_principled(vec4 color, float subsurface, vec4 subsurface_color,
+        float metallic, float specular, float roughness, float clearcoat,
+        float clearcoat_roughness, float anisotropy, float transmission,
+        float IOR, out vec3 albedo, out float sss_strength_out,
+        out float metallic_out, out float specular_out,
+        out float roughness_out, out float clearcoat_out,
+        out float clearcoat_gloss_out, out float anisotropy_out,
+        out float transmission_out, out float ior) {
+    metallic = clamp(metallic, 0.0, 1.0);
+    transmission = clamp(transmission, 0.0, 1.0);
+
+    subsurface = subsurface * (1.0 - metallic);
+
+    albedo = mix(color.rgb, subsurface_color.rgb, subsurface);
+    sss_strength_out = subsurface;
+    metallic_out = metallic;
+    specular_out = pow((IOR - 1.0)/(IOR + 1.0), 2)/0.08;
+    roughness_out = roughness;
+    clearcoat_out = clearcoat * (1.0 - transmission);
+    clearcoat_gloss_out = 1.0 - clearcoat_roughness;
+    anisotropy_out = clamp(anisotropy, 0.0, 1.0);
+    transmission_out = (1.0 - transmission) * (1.0 - metallic);
+    ior = IOR;
+}
+
+void vertex () {
+}
+
+void fragment () {
+	
+	// node: 'Principled BSDF'
+	// type: 'ShaderNodeBsdfPrincipled'
+	// input sockets handling
+	vec4 node0_in0_basecolor = vec4(0.9372549057006836, 0.9803921580314636,
+		0.95686274766922, 1.0);
+	float node0_in1_subsurface = float(0.0);
+	vec3 node0_in2_subsurfaceradius = vec3(1.0, 0.20000000298023224,
+		0.10000000149011612);
+	vec4 node0_in3_subsurfacecolor = vec4(0.800000011920929, 0.800000011920929,
+		0.800000011920929, 1.0);
+	float node0_in4_metallic = float(0.0);
+	float node0_in5_specular = float(0.5);
+	float node0_in6_speculartint = float(0.0);
+	float node0_in7_roughness = float(1.0);
+	float node0_in8_anisotropic = float(0.0);
+	float node0_in9_anisotropicrotation = float(0.0);
+	float node0_in10_sheen = float(0.0);
+	float node0_in11_sheentint = float(0.5);
+	float node0_in12_clearcoat = float(0.0);
+	float node0_in13_clearcoatroughness = float(0.029999999329447746);
+	float node0_in14_ior = float(1.4500000476837158);
+	float node0_in15_transmission = float(0.0);
+	float node0_in16_transmissionroughness = float(0.0);
+	vec4 node0_in17_emission = vec4(0.0, 0.0, 0.0, 1.0);
+	float node0_in18_alpha = float(1.0);
+	vec3 node0_in19_normal = NORMAL;
+	vec3 node0_in20_clearcoatnormal = vec3(0.0, 0.0, 0.0);
+	vec3 node0_in21_tangent = TANGENT;
+	// output sockets definitions
+	vec3 node0_bsdf_out0_albedo;
+	float node0_bsdf_out1_sss_strength;
+	float node0_bsdf_out3_specular;
+	float node0_bsdf_out2_metallic;
+	float node0_bsdf_out4_roughness;
+	float node0_bsdf_out5_clearcoat;
+	float node0_bsdf_out6_clearcoat_gloss;
+	float node0_bsdf_out7_anisotropy;
+	float node0_bsdf_out8_transmission;
+	float node0_bsdf_out9_ior;
+	
+	node_bsdf_principled(node0_in0_basecolor, node0_in1_subsurface,
+		node0_in3_subsurfacecolor, node0_in4_metallic, node0_in5_specular,
+		node0_in7_roughness, node0_in12_clearcoat, node0_in13_clearcoatroughness,
+		node0_in8_anisotropic, node0_in15_transmission, node0_in14_ior,
+		node0_bsdf_out0_albedo, node0_bsdf_out1_sss_strength, node0_bsdf_out2_metallic,
+		node0_bsdf_out3_specular, node0_bsdf_out4_roughness, node0_bsdf_out5_clearcoat,
+		node0_bsdf_out6_clearcoat_gloss, node0_bsdf_out7_anisotropy,
+		node0_bsdf_out8_transmission, node0_bsdf_out9_ior);
+	
+	
+	ALBEDO = node0_bsdf_out0_albedo;
+	SSS_STRENGTH = node0_bsdf_out1_sss_strength;
+	SPECULAR = node0_bsdf_out3_specular;
+	METALLIC = node0_bsdf_out2_metallic;
+	ROUGHNESS = node0_bsdf_out4_roughness;
+	CLEARCOAT = node0_bsdf_out5_clearcoat;
+	CLEARCOAT_GLOSS = node0_bsdf_out6_clearcoat_gloss;
+	NORMAL = node0_in19_normal;
+	// uncomment it when you need it
+	// TRANSMISSION = vec3(1.0, 1.0, 1.0) * node0_bsdf_out8_transmission;
+	// uncomment it when you are modifing TANGENT
+	// TANGENT = normalize(cross(cross(node0_in21_tangent, NORMAL), NORMAL));
+	// BINORMAL = cross(TANGENT, NORMAL);
+	// uncomment it when you have tangent(UV) set
+	// ANISOTROPY = node0_bsdf_out7_anisotropy;
+}
+"
+
+[sub_resource id=8 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(7)
+
+[sub_resource id=9 type="Shader"]
+
+resource_name = "Shader Nodetree"
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+
+
+void node_bsdf_principled(vec4 color, float subsurface, vec4 subsurface_color,
+        float metallic, float specular, float roughness, float clearcoat,
+        float clearcoat_roughness, float anisotropy, float transmission,
+        float IOR, out vec3 albedo, out float sss_strength_out,
+        out float metallic_out, out float specular_out,
+        out float roughness_out, out float clearcoat_out,
+        out float clearcoat_gloss_out, out float anisotropy_out,
+        out float transmission_out, out float ior) {
+    metallic = clamp(metallic, 0.0, 1.0);
+    transmission = clamp(transmission, 0.0, 1.0);
+
+    subsurface = subsurface * (1.0 - metallic);
+
+    albedo = mix(color.rgb, subsurface_color.rgb, subsurface);
+    sss_strength_out = subsurface;
+    metallic_out = metallic;
+    specular_out = pow((IOR - 1.0)/(IOR + 1.0), 2)/0.08;
+    roughness_out = roughness;
+    clearcoat_out = clearcoat * (1.0 - transmission);
+    clearcoat_gloss_out = 1.0 - clearcoat_roughness;
+    anisotropy_out = clamp(anisotropy, 0.0, 1.0);
+    transmission_out = (1.0 - transmission) * (1.0 - metallic);
+    ior = IOR;
+}
+
+void vertex () {
+}
+
+void fragment () {
+	
+	// node: 'Principled BSDF'
+	// type: 'ShaderNodeBsdfPrincipled'
+	// input sockets handling
+	vec4 node0_in0_basecolor = vec4(1.0, 1.0, 1.0, 1.0);
+	float node0_in1_subsurface = float(0.0);
+	vec3 node0_in2_subsurfaceradius = vec3(1.0, 0.20000000298023224,
+		0.10000000149011612);
+	vec4 node0_in3_subsurfacecolor = vec4(0.800000011920929, 0.800000011920929,
+		0.800000011920929, 1.0);
+	float node0_in4_metallic = float(0.0);
+	float node0_in5_specular = float(0.5);
+	float node0_in6_speculartint = float(0.0);
+	float node0_in7_roughness = float(1.0);
+	float node0_in8_anisotropic = float(0.0);
+	float node0_in9_anisotropicrotation = float(0.0);
+	float node0_in10_sheen = float(0.0);
+	float node0_in11_sheentint = float(0.5);
+	float node0_in12_clearcoat = float(0.0);
+	float node0_in13_clearcoatroughness = float(0.029999999329447746);
+	float node0_in14_ior = float(1.4500000476837158);
+	float node0_in15_transmission = float(0.0);
+	float node0_in16_transmissionroughness = float(0.0);
+	vec4 node0_in17_emission = vec4(0.0, 0.0, 0.0, 1.0);
+	float node0_in18_alpha = float(1.0);
+	vec3 node0_in19_normal = NORMAL;
+	vec3 node0_in20_clearcoatnormal = vec3(0.0, 0.0, 0.0);
+	vec3 node0_in21_tangent = TANGENT;
+	// output sockets definitions
+	vec3 node0_bsdf_out0_albedo;
+	float node0_bsdf_out1_sss_strength;
+	float node0_bsdf_out3_specular;
+	float node0_bsdf_out2_metallic;
+	float node0_bsdf_out4_roughness;
+	float node0_bsdf_out5_clearcoat;
+	float node0_bsdf_out6_clearcoat_gloss;
+	float node0_bsdf_out7_anisotropy;
+	float node0_bsdf_out8_transmission;
+	float node0_bsdf_out9_ior;
+	
+	node_bsdf_principled(node0_in0_basecolor, node0_in1_subsurface,
+		node0_in3_subsurfacecolor, node0_in4_metallic, node0_in5_specular,
+		node0_in7_roughness, node0_in12_clearcoat, node0_in13_clearcoatroughness,
+		node0_in8_anisotropic, node0_in15_transmission, node0_in14_ior,
+		node0_bsdf_out0_albedo, node0_bsdf_out1_sss_strength, node0_bsdf_out2_metallic,
+		node0_bsdf_out3_specular, node0_bsdf_out4_roughness, node0_bsdf_out5_clearcoat,
+		node0_bsdf_out6_clearcoat_gloss, node0_bsdf_out7_anisotropy,
+		node0_bsdf_out8_transmission, node0_bsdf_out9_ior);
+	
+	
+	ALBEDO = node0_bsdf_out0_albedo;
+	SSS_STRENGTH = node0_bsdf_out1_sss_strength;
+	SPECULAR = node0_bsdf_out3_specular;
+	METALLIC = node0_bsdf_out2_metallic;
+	ROUGHNESS = node0_bsdf_out4_roughness;
+	CLEARCOAT = node0_bsdf_out5_clearcoat;
+	CLEARCOAT_GLOSS = node0_bsdf_out6_clearcoat_gloss;
+	NORMAL = node0_in19_normal;
+	// uncomment it when you need it
+	// TRANSMISSION = vec3(1.0, 1.0, 1.0) * node0_bsdf_out8_transmission;
+	// uncomment it when you are modifing TANGENT
+	// TANGENT = normalize(cross(cross(node0_in21_tangent, NORMAL), NORMAL));
+	// BINORMAL = cross(TANGENT, NORMAL);
+	// uncomment it when you have tangent(UV) set
+	// ANISOTROPY = node0_bsdf_out7_anisotropy;
+}
+"
+
+[sub_resource id=10 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(9)
+
+[sub_resource id=11 type="ArrayMesh"]
+
+resource_name = "Mesh kitchenSink"
+surfaces/0 = {
+	"material":SubResource(2),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.403156, 0.363156, -0.02, 0.403156, 0.237543, -0.04, 0.403156, 0.085086, -0.02, 0.403156, 0.237543, -0.04, 0.403156, 0.363156, -0.02, 0.403156, 0.363156, -0.4, 0.403156, 0.237543, -0.04, 0.403156, 0.363156, -0.4, 0.403156, 0.237543, -0.4, 0.403156, 0.210699, -0.04, 0.403156, 0.085086, -0.02, 0.403156, 0.237543, -0.04, 0.403156, 0.085086, -0.4, 0.403156, 0.210699, -0.4, 0.43, 0.0582419, -0.04, 0.0, 0.0, -0.04, 0.43, 0.0, -0.04, 0.0, 0.0582419, -0.04, 0.43, 0.0, -0.45, 0.43, 0.0582419, -0.04, 0.43, 0.0, -0.04, 0.43, 0.39, -0.45, 0.43, 0.0582419, -0.04, 0.43, 0.0, -0.45, 0.43, 0.39, -0.02, 0.43, 0.39, -0.45, 0.43, 0.0582419, -0.02, 0.403156, 0.210699, -0.4, 0.0268442, 0.085086, -0.4, 0.403156, 0.085086, -0.4, 0.0268442, 0.085086, -0.4, 0.403156, 0.210699, -0.4, 0.0268442, 0.210699, -0.4, 0.403156, 0.237543, -0.04, 0.0268442, 0.237543, -0.4, 0.0268442, 0.237543, -0.04, 0.403156, 0.237543, -0.4, 0.403156, 0.085086, -0.02, 0.0268442, 0.085086, -0.4, 0.0268442, 0.085086, -0.02, 0.403156, 0.085086, -0.4, 0.0, 0.39, -0.45, 0.43, 0.0, -0.45, 0.0, 0.0, -0.45, 0.43, 0.39, -0.45, 0.43, 0.0582419, -0.04, 1.80478e-15, 0.0582419, -0.02, 0.0, 0.0582419, -0.04, 0.43, 0.0582419, -0.02, 0.403156, 0.237543, -0.04, 0.0268442, 0.210699, -0.04, 0.403156, 0.210699, -0.04, 0.0268442, 0.237543, -0.04, 0.403156, 0.210699, -0.4, 0.0268442, 0.210699, -0.04, 0.0268442, 0.210699, -0.4, 0.403156, 0.210699, -0.04, 0.0268442, 0.085086, -0.02, 0.0268442, 0.210699, -0.04, 0.0268442, 0.363156, -0.02, 0.0268442, 0.210699, -0.04, 0.0268442, 0.085086, -0.02, 0.0268442, 0.085086, -0.4, 0.0268442, 0.210699, -0.4, 0.0268442, 0.237543, -0.04, 0.0268442, 0.363156, -0.02, 0.0268442, 0.210699, -0.04, 0.0268442, 0.363156, -0.02, 0.0268442, 0.237543, -0.04, 0.0268442, 0.363156, -0.4, 0.0268442, 0.363156, -0.4, 0.0268442, 0.237543, -0.04, 0.0268442, 0.237543, -0.4, 0.43, 0.0, -0.45, 0.0, 0.0, -0.04, 0.0, 0.0, -0.45, 0.43, 0.0, -0.04, 0.403156, 0.363156, -0.4, 0.0268442, 0.237543, -0.4, 0.403156, 0.237543, -0.4, 0.0268442, 0.363156, -0.4, 0.0, 0.39, -0.45, 1.80478e-15, 0.0582419, -0.02, 1.80478e-15, 0.39, -0.02, 1.80478e-15, 0.0582419, -0.02, 0.0, 0.39, -0.45, 0.0, 0.0582419, -0.04, 0.0, 0.0582419, -0.04, 0.0, 0.39, -0.45, 0.0, 0.0, -0.04, 0.0, 0.0, -0.45, 0.43, 0.0582419, -0.02, 0.403156, 0.085086, -0.02, 1.80478e-15, 0.0582419, -0.02, 0.43, 0.39, -0.02, 0.403156, 0.363156, -0.02, 0.403156, 0.363156, -0.02, 0.43, 0.39, -0.02, 0.0268442, 0.363156, -0.02, 0.0268442, 0.085086, -0.02, 1.80478e-15, 0.39, -0.02, 0.0268442, 0.363156, -0.02, 1.80478e-15, 0.39, -0.02, 0.0268442, 0.363156, -0.02, 0.43, 0.39, -0.02, 0.0268442, 0.363156, -0.4, 0.0538093, 0.363156, -0.326196, 0.0268442, 0.363156, -0.02, 0.0538093, 0.363156, -0.326196, 0.0268442, 0.363156, -0.4, 0.403156, 0.363156, -0.4, 0.0268442, 0.363156, -0.02, 0.0538093, 0.363156, -0.326196, 0.0538093, 0.363156, -0.093804, 0.403156, 0.363156, -0.4, 0.376191, 0.363156, -0.326196, 0.376191, 0.363156, -0.326196, 0.403156, 0.363156, -0.4, 0.376191, 0.363156, -0.093804, 0.376191, 0.363156, -0.093804, 0.403156, 0.363156, -0.4, 0.403156, 0.363156, -0.02, 0.403156, 0.363156, -0.02, 0.376191, 0.363156, -0.093804),
+		Vector3Array(-1.0, 0.0, -1.3397e-06, -1.0, 0.0, -1.3397e-06, -1.0, 0.0, -1.3397e-06, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.16488e-07, 1.0, 0.0, 1.16488e-07, 1.0, 0.0, 1.16488e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 1.67462e-07, 1.0, 0.0, 1.67462e-07, 1.0, 0.0, 1.67462e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.73468e-06, 1.0, 0.0, -1.73468e-06, 1.0, 0.0, -1.73468e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 4.19716e-15, -1.0, 0.0, 4.19716e-15, -1.0, 0.0, 4.19716e-15, -1.0, 1.11521e-13, 9.02392e-14, -1.0, 1.11521e-13, 9.02392e-14, -1.0, 1.11521e-13, 9.02392e-14, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.61366e-07, 1.0, 0.0, 1.61366e-07, 1.0, 0.0, 1.61366e-07, 1.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 2.37792e-06, -1.0, 0.0, 2.37792e-06, -1.0, 0.0, 2.37792e-06, -1.0, 0.0, -2.90847e-06, -1.0, 0.0, -2.90847e-06, -1.0, 0.0, -2.90847e-06, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0),
+		FloatArray(-1.3397e-06, 0.0, 1.0, 1.0, -1.3397e-06, 0.0, 1.0, 1.0, -1.3397e-06, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, -8.92724e-07, 1.0, 1.0, 0.0, -2.68759e-08, 1.0, 1.0, 0.0, -1.40995e-06, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 1.16488e-07, 0.0, -1.0, 1.0, 1.16488e-07, 0.0, -1.0, 1.0, 1.16488e-07, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.67462e-07, 0.0, -1.0, 1.0, 1.67462e-07, 0.0, -1.0, 1.0, 1.67462e-07, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, -1.73468e-06, -1.40995e-06, -1.0, 1.0, -1.73468e-06, -1.40995e-06, -1.0, 1.0, -1.73468e-06, -1.40995e-06, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 4.19716e-15, 0.0, 1.0, 1.0, 4.19716e-15, 0.0, 1.0, 1.0, 4.19716e-15, 0.0, 1.0, 1.0, 9.02392e-14, 0.0, 1.0, 1.0, 9.02392e-14, 0.0, 1.0, 1.0, 9.02392e-14, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 4.24993e-08, 0.0, 1.0, 1.0, 4.09154e-08, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 9.5033e-09, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -5.66907e-09, 0.0, 1.0, 1.0, -2.70215e-07, 0.0, 1.0, 1.0, -3.04229e-07, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 4.27579e-08, 1.0, -1.0, 0.0, 2.41596e-07, 1.0, -1.0, 0.0, 1.43105e-07, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, -2.37792e-06, -2.41596e-07, 1.0, -1.0, -2.37792e-06, -2.41596e-07, 1.0, -1.0, -2.37792e-06, -2.41596e-07, 1.0, -1.0, 2.90847e-06, 0.0, 1.0, -1.0, 2.90847e-06, 0.0, 1.0, -1.0, 2.90847e-06, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(-0.787402, -13.2975, -1.5748, -8.35209, -0.787402, -2.34984, -1.5748, -8.35209, -0.787402, -13.2975, -15.748, -13.2975, -1.5748, -8.35209, -15.748, -13.2975, -15.748, -8.35209, -1.5748, -7.29523, -0.787402, -2.34984, -1.5748, -8.35209, -15.748, -2.34984, -15.748, -7.29523, 16.9291, -1.29299, 0.0, 1.0, 16.9291, 1.0, 0.0, -1.29299, 17.7165, 1.0, 1.5748, -1.29299, 1.5748, 1.0, 17.7165, -14.3543, 1.5748, -1.29299, 17.7165, 1.0, 0.787402, -14.3543, 17.7165, -14.3543, 0.787402, -1.29299, 15.8723, -7.29523, 1.05686, -2.34984, 15.8723, -2.34984, 1.05686, -2.34984, 15.8723, -7.29523, 1.05686, -7.29523, 15.8723, -0.574803, 1.05686, -14.748, 1.05686, -0.574803, 15.8723, -14.748, 15.8723, 0.212598, 1.05686, -14.748, 1.05686, 0.212598, 15.8723, -14.748, 0.0, -14.3543, -16.9291, 1.0, 0.0, 1.0, -16.9291, -14.3543, -16.9291, -0.574803, -7.10543e-14, 0.212598, 0.0, -0.574803, -16.9291, 0.212598, 15.8723, -8.35209, 1.05686, -7.29523, 15.8723, -7.29523, 1.05686, -8.35209, -15.8723, -14.748, -1.05686, -0.574803, -1.05686, -14.748, -15.8723, -0.574803, 0.787402, -2.34984, 1.5748, -7.29523, 0.787402, -13.2975, 1.5748, -7.29523, 0.787402, -2.34984, 15.748, -2.34984, 15.748, -7.29523, 1.5748, -8.35209, 0.787402, -13.2975, 1.5748, -7.29523, 0.787402, -13.2975, 1.5748, -8.35209, 15.748, -13.2975, 15.748, -13.2975, 1.5748, -8.35209, 15.748, -8.35209, -16.9291, -16.7165, 0.0, -0.574803, 0.0, -16.7165, -16.9291, -0.574803, 15.8723, -13.2975, 1.05686, -8.35209, 15.8723, -8.35209, 1.05686, -13.2975, -17.7165, -14.3543, -0.787402, -1.29299, -0.787402, -14.3543, -0.787402, -1.29299, -17.7165, -14.3543, -1.5748, -1.29299, -1.5748, -1.29299, -17.7165, -14.3543, -1.5748, 1.0, -17.7165, 1.0, 16.9291, -1.29299, 15.8723, -2.34984, 7.10543e-14, -1.29299, 16.9291, -14.3543, 15.8723, -13.2975, 15.8723, -13.2975, 16.9291, -14.3543, 1.05686, -13.2975, 1.05686, -2.34984, 7.10543e-14, -14.3543, 1.05686, -13.2975, 7.10543e-14, -14.3543, 1.05686, -13.2975, 16.9291, -14.3543, -1.05686, -14.748, -2.11848, -11.8424, -1.05686, 0.212598, -2.11848, -11.8424, -1.05686, -14.748, -15.8723, -14.748, -1.05686, 0.212598, -2.11848, -11.8424, -2.11848, -2.69307, -15.8723, -14.748, -14.8107, -11.8424, -14.8107, -11.8424, -15.8723, -14.748, -14.8107, -2.69307, -14.8107, -2.69307, -15.8723, -14.748, -15.8723, 0.212598, -15.8723, 0.212598, -14.8107, -2.69307),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 3, 5, 4, 6, 8, 7, 9, 11, 10, 10, 12, 9, 12, 13, 9, 14, 16, 15, 15, 17, 14, 18, 20, 19, 21, 23, 22, 24, 25, 19, 19, 26, 24, 27, 29, 28, 30, 32, 31, 33, 35, 34, 34, 36, 33, 37, 39, 38, 38, 40, 37, 41, 43, 42, 42, 44, 41, 45, 47, 46, 46, 48, 45, 49, 51, 50, 50, 52, 49, 53, 55, 54, 54, 56, 53, 57, 59, 58, 60, 62, 61, 60, 63, 62, 64, 66, 65, 67, 69, 68, 70, 72, 71, 73, 75, 74, 74, 76, 73, 77, 79, 78, 78, 80, 77, 81, 83, 82, 84, 86, 85, 87, 89, 88, 89, 90, 88, 91, 93, 92, 92, 94, 91, 92, 95, 94, 96, 98, 97, 99, 92, 93, 93, 100, 99, 100, 101, 99, 102, 104, 103, 105, 107, 106, 108, 110, 109, 111, 113, 112, 106, 115, 114, 116, 118, 117, 119, 121, 120, 113, 111, 122, 122, 123, 113)
+	],
+	"morph_arrays":[]
+}
+surfaces/1 = {
+	"material":SubResource(4),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(1.80478e-15, 0.39, -0.02, 0.43, 0.39, 0.0, 0.0, 0.39, 0.0, 0.43, 0.39, -0.02, 0.43, 0.39, -0.02, 0.43, 0.42, 0.0, 0.43, 0.39, 0.0, 0.43, 0.42, -0.42, 0.43, 0.39, -0.45, 0.43, 0.42, -0.42, 0.43, 0.39, -0.45, 0.43, 0.45, -0.42, 0.43, 0.45, -0.42, 0.43, 0.45, -0.45, 0.0, 0.45, -0.45, 0.43, 0.39, -0.45, 0.0, 0.39, -0.45, 0.43, 0.45, -0.45, 1.80478e-15, 0.45, -0.42, 0.43, 0.45, -0.45, 0.0, 0.45, -0.45, 0.43, 0.45, -0.42, 0.43, 0.42, 0.0, 0.0, 0.39, 0.0, 0.43, 0.39, 0.0, 0.0, 0.42, 0.0, 0.0, 0.45, -0.45, 1.80478e-15, 0.42, -0.42, 1.80478e-15, 0.45, -0.42, 0.0, 0.39, -0.45, 1.80478e-15, 0.42, -0.42, 0.0, 0.45, -0.45, 1.80478e-15, 0.39, -0.02, 1.80478e-15, 0.42, -0.42, 0.0, 0.39, -0.45, 0.0, 0.39, 0.0, 1.80478e-15, 0.42, -0.42, 1.80478e-15, 0.39, -0.02, 1.80478e-15, 0.42, -0.42, 0.0, 0.39, 0.0, 0.0, 0.42, 0.0, 0.0683165, 0.32, -0.326196, 0.0538093, 0.363156, -0.093804, 0.0683165, 0.32, -0.093804, 0.0538093, 0.363156, -0.093804, 0.0683165, 0.32, -0.326196, 0.0538093, 0.363156, -0.326196, 0.0683165, 0.32, -0.093804, 0.0538093, 0.363156, -0.093804, 0.0683165, 0.32, -0.326196, 0.0538093, 0.363156, -0.326196, 0.0683165, 0.32, -0.326196, 0.0538093, 0.363156, -0.093804, 0.376191, 0.42, -0.326196, 0.0538093, 0.363156, -0.326196, 0.376191, 0.363156, -0.326196, 0.0538093, 0.42, -0.326196, 0.0683165, 0.32, -0.326196, 0.376191, 0.363156, -0.326196, 0.0683165, 0.32, -0.326196, 0.361684, 0.32, -0.326196, 0.43, 0.45, -0.42, 1.80478e-15, 0.42, -0.42, 0.43, 0.42, -0.42, 1.80478e-15, 0.45, -0.42, 0.0538093, 0.363156, -0.093804, 0.361684, 0.32, -0.093804, 0.0683165, 0.32, -0.093804, 0.361684, 0.32, -0.093804, 0.0538093, 0.363156, -0.093804, 0.376191, 0.363156, -0.093804, 0.0538093, 0.42, -0.093804, 0.376191, 0.42, -0.093804, 0.0683165, 0.32, -0.093804, 0.361684, 0.32, -0.093804, 0.0538093, 0.363156, -0.093804, 0.376191, 0.363156, -0.093804, 0.0538093, 0.363156, -0.093804, 0.361684, 0.32, -0.093804, 0.189019, 0.32, -0.195, 0.189019, 0.32, -0.225, 0.215, 0.32, -0.18, 0.215, 0.32, -0.24, 0.215, 0.32, -0.18, 0.189019, 0.32, -0.225, 0.240981, 0.32, -0.195, 0.215, 0.32, -0.24, 0.240981, 0.32, -0.225, 0.361684, 0.32, -0.093804, 0.240981, 0.32, -0.225, 0.361684, 0.32, -0.093804, 0.240981, 0.32, -0.195, 0.0683165, 0.32, -0.093804, 0.0683165, 0.32, -0.326196, 0.189019, 0.32, -0.195, 0.0683165, 0.32, -0.093804, 0.189019, 0.32, -0.195, 0.0683165, 0.32, -0.326196, 0.189019, 0.32, -0.225, 0.361684, 0.32, -0.326196, 0.189019, 0.32, -0.225, 0.361684, 0.32, -0.326196, 0.361684, 0.32, -0.093804, 0.240981, 0.32, -0.225, 0.361684, 0.32, -0.326196, 0.376191, 0.42, -0.326196, 0.203212, 0.42, -0.361664, 0.0538093, 0.42, -0.326196, 0.233212, 0.42, -0.361664, 0.233212, 0.42, -0.361664, 0.376191, 0.42, -0.326196, 0.233212, 0.42, -0.391664, 0.203212, 0.42, -0.391664, 0.0538093, 0.42, -0.326196, 0.203212, 0.42, -0.361664, 0.203212, 0.42, -0.391664, 1.80478e-15, 0.42, -0.42, 0.0538093, 0.42, -0.326196, 0.43, 0.42, -0.42, 0.233212, 0.42, -0.391664, 0.376191, 0.42, -0.326196, 0.0538093, 0.42, -0.093804, 0.0, 0.42, 0.0, 0.0538093, 0.42, -0.093804, 1.80478e-15, 0.42, -0.42, 0.0538093, 0.42, -0.093804, 0.0, 0.42, 0.0, 0.43, 0.42, 0.0, 0.376191, 0.42, -0.093804, 0.361684, 0.32, -0.326196, 0.0683165, 0.32, -0.326196, 0.376191, 0.363156, -0.326196, 0.0538093, 0.363156, -0.326196, 0.376191, 0.363156, -0.326196, 0.0683165, 0.32, -0.326196, 0.376191, 0.42, -0.326196, 0.376191, 0.363156, -0.093804, 0.376191, 0.42, -0.093804, 0.376191, 0.363156, -0.326196, 0.0538093, 0.363156, -0.326196, 0.0538093, 0.42, -0.093804, 0.0538093, 0.363156, -0.093804, 0.0538093, 0.42, -0.326196, 0.376191, 0.363156, -0.326196, 0.361684, 0.32, -0.093804, 0.376191, 0.363156, -0.093804, 0.361684, 0.32, -0.093804, 0.376191, 0.363156, -0.326196, 0.361684, 0.32, -0.326196, 0.376191, 0.363156, -0.093804, 0.361684, 0.32, -0.093804, 0.376191, 0.363156, -0.326196, 0.361684, 0.32, -0.326196, 0.376191, 0.363156, -0.326196, 0.361684, 0.32, -0.093804, 0.0683165, 0.32, -0.093804, 0.189019, 0.32, -0.195, 0.0683165, 0.32, -0.326196, 0.189019, 0.32, -0.195, 0.0683165, 0.32, -0.093804, 0.361684, 0.32, -0.093804, 0.215, 0.32, -0.18, 0.240981, 0.32, -0.195, 0.240981, 0.32, -0.195, 0.361684, 0.32, -0.093804, 0.240981, 0.32, -0.225, 0.189019, 0.32, -0.225, 0.0683165, 0.32, -0.326196, 0.189019, 0.32, -0.195, 0.361684, 0.32, -0.326196, 0.361684, 0.32, -0.326196, 0.240981, 0.32, -0.225, 0.361684, 0.32, -0.093804, 0.361684, 0.32, -0.326196, 0.189019, 0.32, -0.225, 0.215, 0.32, -0.24, 0.240981, 0.32, -0.225),
+		Vector3Array(0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -4.13921e-06, 1.0, 0.0, -4.13921e-06, 1.0, 0.0, -4.13921e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 6.01593e-14, -1.0, 0.0, 6.01593e-14, -1.0, 0.0, 6.01593e-14, -1.0, 0.0, 6.01593e-14, -1.0, 0.0, 6.01593e-14, -1.0, 0.0, 6.01593e-14, -1.0, 5.59622e-14, 4.19716e-15, -1.0, 5.59622e-14, 4.19716e-15, -1.0, 5.59622e-14, 4.19716e-15, -1.0, -1.20317e-12, -9.02373e-14, -1.0, -1.20317e-12, -9.02373e-14, -1.0, -1.20317e-12, -9.02373e-14, -1.0, 0.0, -4.29709e-15, -1.0, 0.0, -4.29709e-15, -1.0, 0.0, -4.29709e-15, 0.947877, 0.318636, 0.0, 0.947877, 0.318636, 0.0, 0.947877, 0.318636, 0.0, 0.947877, 0.318636, 0.0, 0.947877, 0.318636, 0.0, 0.947877, 0.318636, 0.0, -0.947877, -0.318636, 0.0, -0.947877, -0.318636, 0.0, -0.947877, -0.318636, 0.0, -0.947877, -0.318636, 0.0, -0.947877, -0.318636, 0.0, -0.947877, -0.318636, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.17698e-06, 1.0, 0.0, -1.17698e-06, 1.0, 0.0, -1.17698e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 2.94245e-07, -1.0, 0.0, 2.94245e-07, -1.0, 0.0, 2.94245e-07, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -2.94245e-07, 1.0, 0.0, -2.94245e-07, 1.0, 0.0, -2.94245e-07, 1.0, 0.0, 2.67763e-07, 1.0, 0.0, 2.67763e-07, 1.0, 0.0, 2.67763e-07, 1.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -1.19489e-06, -1.0, 0.0, -1.19489e-06, -1.0, 0.0, -1.19489e-06, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 2.65614e-07, -1.0, 0.0, 2.65614e-07, -1.0, 0.0, 2.65614e-07, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -2.65614e-07, -1.0, 0.0, -2.65614e-07, -1.0, 0.0, -2.65614e-07, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -8.68497e-07, 1.0, 0.0, -8.68497e-07, 1.0, 0.0, -8.68497e-07, 1.0, 0.0, 4.15576e-07, 1.0, 0.0, 4.15576e-07, 1.0, 0.0, 4.15576e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.17698e-06, -1.0, 0.0, 1.17698e-06, -1.0, 0.0, 1.17698e-06, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -0.947877, 0.318636, 0.0, -0.947877, 0.318636, 0.0, -0.947877, 0.318636, 0.0, -0.947877, 0.318637, 0.0, -0.947877, 0.318637, 0.0, -0.947877, 0.318637, 0.0, 0.947877, -0.318636, 0.0, 0.947877, -0.318636, 0.0, 0.947877, -0.318636, 0.0, 0.947877, -0.318637, 0.0, 0.947877, -0.318637, 0.0, 0.947877, -0.318637, 0.0, -2.65614e-07, 1.0, 0.0, -2.65614e-07, 1.0, 0.0, -2.65614e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 2.65614e-07, 1.0, 0.0, 2.65614e-07, 1.0, 0.0, 2.65614e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0),
+		FloatArray(-1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, -4.13921e-06, 1.05136e-07, -1.0, 1.0, -4.13921e-06, 1.05136e-07, -1.0, 1.0, -4.13921e-06, 1.05136e-07, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 6.01593e-14, 0.0, 1.0, 1.0, 6.01593e-14, 0.0, 1.0, 1.0, 6.01593e-14, 0.0, 1.0, 1.0, 6.01593e-14, -1.05136e-07, 1.0, 1.0, 6.01593e-14, -1.05136e-07, 1.0, 1.0, 6.01593e-14, -1.05136e-07, 1.0, 1.0, 4.19716e-15, 0.0, 1.0, 1.0, 4.19716e-15, 0.0, 1.0, 1.0, 4.19716e-15, 0.0, 1.0, 1.0, -9.02373e-14, 0.0, 1.0, 1.0, -9.02373e-14, 0.0, 1.0, 1.0, -9.02373e-14, 0.0, 1.0, 1.0, -4.29709e-15, 0.0, 1.0, 1.0, -4.29709e-15, 0.0, 1.0, 1.0, -4.29709e-15, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 3.87569e-07, -1.0, 1.0, 0.0, 6.67703e-07, -1.0, 1.0, 0.0, 1.31057e-05, -1.0, 1.0, -1.19489e-06, -3.64202e-07, -1.0, 1.0, -1.19489e-06, -3.64202e-07, -1.0, 1.0, -1.19489e-06, -3.64202e-07, -1.0, 1.0, 0.0, -1.33609e-07, -1.0, 1.0, 0.0, -1.14918e-05, -1.0, 1.0, 0.0, 4.29885e-07, -1.0, 1.0, 0.0, -1.30549e-08, -1.0, 1.0, 0.0, 4.18095e-07, -1.0, 1.0, 0.0, 4.18095e-07, -1.0, 1.0, 0.0, 4.18095e-07, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 2.65615e-07, 0.0, -1.0, 1.0, 2.65614e-07, 0.0, -1.0, 1.0, 2.65614e-07, 0.0, -1.0, 1.0, 0.0, 5.22619e-07, -1.0, 1.0, 0.0, 8.17176e-08, -1.0, 1.0, 0.0, 2.83475e-07, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, -1.93181e-05, -1.0, 1.0, 0.0, 4.34917e-08, -1.0, 1.0, -2.65614e-07, -1.07946e-07, -1.0, 1.0, -2.65614e-07, -1.07946e-07, -1.0, 1.0, -2.65614e-07, -1.07946e-07, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 8.68497e-07, -2.20598e-08, 1.0, 1.0, 8.68497e-07, -2.20598e-08, 1.0, 1.0, 8.68497e-07, -2.20598e-08, 1.0, 1.0, -4.15576e-07, 4.22225e-08, 1.0, 1.0, -4.15576e-07, 4.22225e-08, 1.0, 1.0, -4.15576e-07, 4.22225e-08, 1.0, 1.0, 0.0, 1.00462e-08, 1.0, 1.0, 0.0, -5.02875e-08, 1.0, 1.0, 0.0, -1.96123e-07, 1.0, 1.0, 0.0, 5.0129e-08, 1.0, 1.0, 0.0, -1.07475e-08, 1.0, 1.0, 0.0, 1.23094e-07, 1.0, 1.0, 0.0, -3.63209e-07, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 3.48446e-10, 1.0, 1.0, 0.0, -6.73326e-08, 1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 1.0, 2.65614e-07, 0.0, 1.0, 1.0, 2.65614e-07, 0.0, 1.0, 1.0, 2.65615e-07, 0.0, 1.0, 1.0, 0.0, 3.55903e-07, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, -1.30549e-08, 1.0, 1.0, 0.0, 1.60787e-05, 1.0, 1.0, 0.0, -2.13128e-07, 1.0, 1.0, 0.0, 3.65834e-07, 1.0, 1.0, 0.0, 3.65834e-07, 1.0, 1.0, 0.0, 3.65833e-07, 1.0, 1.0, 0.0, 2.2678e-07, 1.0, 1.0, 0.0, 6.53741e-08, 1.0, 1.0, 0.0, 4.18095e-07, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -2.65614e-07, -1.07946e-07, 1.0, 1.0, -2.65614e-07, -1.07946e-07, 1.0, 1.0, -2.65614e-07, -1.07946e-07, 1.0, 1.0, 0.0, 4.34893e-08, 1.0, 1.0, 0.0, -1.93184e-05, 1.0, 1.0, 0.0, -1.27419e-05, 1.0, 1.0, 0.0, 3.98218e-07, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(-7.10543e-14, 0.212598, -16.9291, 1.0, 0.0, 1.0, -16.9291, 0.212598, 0.787402, -14.3543, 0.0, -15.5354, 0.0, -14.3543, 16.5354, -15.5354, 17.7165, -14.3543, 16.5354, -15.5354, 17.7165, -14.3543, 16.5354, -16.7165, 16.5354, -16.7165, 17.7165, -16.7165, 0.0, -16.7165, -16.9291, -14.3543, 0.0, -14.3543, -16.9291, -16.7165, 7.10543e-14, -15.5354, 16.9291, -16.7165, 0.0, -16.7165, 16.9291, -15.5354, 16.9291, -15.5354, 0.0, -14.3543, 16.9291, -14.3543, 0.0, -15.5354, -17.7165, -16.7165, -16.5354, -15.5354, -16.5354, -16.7165, -17.7165, -14.3543, -16.5354, -15.5354, -17.7165, -16.7165, -0.787402, -14.3543, -16.5354, -15.5354, -17.7165, -14.3543, 0.0, -14.3543, -16.5354, -15.5354, -0.787402, -14.3543, -16.5354, -15.5354, 0.0, -14.3543, 0.0, -15.5354, 12.8424, -10.0847, 3.69307, -11.8772, 3.69307, -10.0847, 3.69307, -11.8772, 12.8424, -10.0847, 12.8424, -11.8772, 3.69307, -10.0847, 3.69307, -11.8772, 12.8424, -10.0847, 12.8424, -11.8772, 12.8424, -10.0847, 3.69307, -11.8772, 14.8107, -15.5354, 2.11848, -13.2975, 14.8107, -13.2975, 2.11848, -15.5354, 2.68962, -11.5984, 14.8107, -13.2975, 2.68962, -11.5984, 14.2395, -11.5984, 16.9291, -16.7165, 7.10543e-14, -15.5354, 16.9291, -15.5354, 7.10543e-14, -16.7165, -2.11848, -13.2975, -14.2395, -11.5984, -2.68962, -11.5984, -14.2395, -11.5984, -2.11848, -13.2975, -14.8107, -13.2975, -2.11848, -15.5354, -14.8107, -15.5354, -2.68962, -11.5984, -14.2395, -11.5984, -2.11848, -13.2975, -14.8107, -13.2975, -2.11848, -13.2975, -14.2395, -11.5984, 7.4417, -6.67717, 7.4417, -7.85827, 8.46457, -6.08661, 8.46457, -8.44882, 8.46457, -6.08661, 7.4417, -7.85827, 9.48743, -6.67717, 8.46457, -8.44882, 9.48743, -7.85827, 14.2395, -2.69307, 9.48743, -7.85827, 14.2395, -2.69307, 9.48743, -6.67717, 2.68962, -2.69307, 2.68962, -11.8424, 7.4417, -6.67717, 2.68962, -2.69307, 7.4417, -6.67717, 2.68962, -11.8424, 7.4417, -7.85827, 14.2395, -11.8424, 7.4417, -7.85827, 14.2395, -11.8424, 14.2395, -2.69307, 9.48743, -7.85827, 14.2395, -11.8424, 14.8107, -11.8424, 8.00047, -13.2388, 2.11848, -11.8424, 9.18157, -13.2388, 9.18157, -13.2388, 14.8107, -11.8424, 9.18157, -14.4199, 8.00047, -14.4199, 2.11848, -11.8424, 8.00047, -13.2388, 8.00047, -14.4199, 7.10543e-14, -15.5354, 2.11848, -11.8424, 16.9291, -15.5354, 9.18157, -14.4199, 14.8107, -11.8424, 2.11848, -2.69307, 0.0, 1.0, 2.11848, -2.69307, 7.10543e-14, -15.5354, 2.11848, -2.69307, 0.0, 1.0, 16.9291, 1.0, 14.8107, -2.69307, 14.2395, -11.5984, 2.68962, -11.5984, 14.8107, -13.2975, 2.11848, -13.2975, 14.8107, -13.2975, 2.68962, -11.5984, -12.8424, -15.5354, -3.69307, -13.2975, -3.69307, -15.5354, -12.8424, -13.2975, 12.8424, -13.2975, 3.69307, -15.5354, 3.69307, -13.2975, 12.8424, -15.5354, -12.8424, -17.2715, -3.69307, -15.479, -3.69307, -17.2715, -3.69307, -15.479, -12.8424, -17.2715, -12.8424, -15.479, -3.69307, -17.2715, -3.69307, -15.479, -12.8424, -17.2715, -12.8424, -15.479, -12.8424, -17.2715, -3.69307, -15.479, 2.68962, -2.69307, 7.4417, -6.67717, 2.68962, -11.8424, 7.4417, -6.67717, 2.68962, -2.69307, 14.2395, -2.69307, 8.46457, -6.08661, 9.48743, -6.67717, 9.48743, -6.67717, 14.2395, -2.69307, 9.48743, -7.85827, 7.4417, -7.85827, 2.68962, -11.8424, 7.4417, -6.67717, 14.2395, -11.8424, 14.2395, -11.8424, 9.48743, -7.85827, 14.2395, -2.69307, 14.2395, -11.8424, 7.4417, -7.85827, 8.46457, -8.44882, 9.48743, -7.85827),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 1, 3, 0, 4, 6, 5, 5, 7, 4, 7, 8, 4, 9, 11, 10, 12, 13, 8, 14, 16, 15, 15, 17, 14, 18, 20, 19, 19, 21, 18, 22, 24, 23, 23, 25, 22, 26, 28, 27, 29, 31, 30, 32, 34, 33, 35, 37, 36, 38, 40, 39, 41, 43, 42, 44, 46, 45, 47, 49, 48, 50, 52, 51, 53, 55, 54, 54, 56, 53, 57, 54, 55, 58, 60, 59, 61, 63, 62, 62, 64, 61, 65, 67, 66, 68, 70, 69, 71, 69, 70, 70, 72, 71, 73, 75, 74, 76, 78, 77, 79, 81, 80, 82, 84, 83, 85, 86, 81, 87, 86, 85, 81, 79, 88, 85, 81, 88, 89, 91, 90, 88, 79, 92, 93, 95, 94, 96, 98, 97, 99, 97, 98, 86, 101, 100, 87, 101, 86, 102, 104, 103, 105, 107, 106, 106, 108, 105, 109, 111, 110, 112, 114, 113, 115, 117, 116, 116, 118, 115, 118, 119, 115, 118, 120, 119, 117, 121, 116, 122, 124, 123, 125, 127, 126, 118, 127, 120, 125, 128, 127, 128, 120, 127, 129, 131, 130, 132, 134, 133, 135, 137, 136, 136, 138, 135, 139, 141, 140, 140, 142, 139, 143, 145, 144, 146, 148, 147, 149, 151, 150, 152, 154, 153, 155, 157, 156, 158, 160, 159, 158, 161, 160, 161, 162, 160, 163, 165, 164, 166, 168, 167, 167, 169, 166, 170, 172, 171, 173, 175, 174, 173, 176, 175)
+	],
+	"morph_arrays":[]
+}
+surfaces/2 = {
+	"material":SubResource(6),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.215, 0.32, -0.18, 0.189019, 0.32, -0.225, 0.189019, 0.32, -0.195, 0.189019, 0.32, -0.225, 0.215, 0.32, -0.18, 0.215, 0.32, -0.24, 0.215, 0.32, -0.24, 0.215, 0.32, -0.18, 0.240981, 0.32, -0.195, 0.215, 0.32, -0.24, 0.240981, 0.32, -0.195, 0.240981, 0.32, -0.225),
+		Vector3Array(0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.19489e-06, 1.0, 0.0, -1.19489e-06, 1.0, 0.0, -1.19489e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0),
+		FloatArray(1.0, 0.0, 1.60787e-05, 1.0, 1.0, 0.0, 6.07003e-07, 1.0, 1.0, 0.0, 3.55903e-07, 1.0, 1.0, 0.0, -3.03501e-07, 1.0, 1.0, 0.0, -3.03501e-07, 1.0, 1.0, 0.0, -3.03501e-07, 1.0, 1.0, 1.19489e-06, -3.64202e-07, 1.0, 1.0, 1.19489e-06, -3.64202e-07, 1.0, 1.0, 1.19489e-06, -3.64202e-07, 1.0, 1.0, 0.0, -1.27419e-05, 1.0, 1.0, 0.0, 6.07003e-07, 1.0, 1.0, 0.0, 3.98218e-07, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(8.46457, -6.08661, 7.4417, -7.85827, 7.4417, -6.67717, 7.4417, -7.85827, 8.46457, -6.08661, 8.46457, -8.44882, 8.46457, -8.44882, 8.46457, -6.08661, 9.48743, -6.67717, 8.46457, -8.44882, 9.48743, -6.67717, 9.48743, -7.85827),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 3, 5, 4, 6, 8, 7, 9, 11, 10)
+	],
+	"morph_arrays":[]
+}
+surfaces/3 = {
+	"material":SubResource(8),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.203212, 0.483801, -0.379927, 0.233212, 0.481213, -0.382878, 0.203212, 0.481213, -0.382878, 0.233212, 0.483801, -0.379927, 0.233212, 0.485981, -0.376664, 0.203212, 0.483801, -0.379927, 0.203212, 0.485981, -0.376664, 0.233212, 0.483801, -0.379927, 0.233212, 0.42, -0.361664, 0.233212, 0.44, -0.391664, 0.233212, 0.44, -0.361664, 0.233212, 0.42, -0.391664, 0.233212, 0.46, -0.361664, 0.233212, 0.463916, -0.271921, 0.233212, 0.46, -0.271665, 0.233212, 0.467765, -0.272687, 0.233212, 0.471481, -0.273948, 0.233212, 0.475, -0.275684, 0.233212, 0.478263, -0.277864, 0.233212, 0.481213, -0.280451, 0.233212, 0.483801, -0.283402, 0.233212, 0.485981, -0.286664, 0.233212, 0.485981, -0.286664, 0.233212, 0.46, -0.361664, 0.233212, 0.487716, -0.290184, 0.233212, 0.487716, -0.290184, 0.233212, 0.46, -0.361664, 0.233212, 0.488978, -0.2939, 0.233212, 0.489743, -0.297749, 0.233212, 0.49, -0.301664, 0.233212, 0.49, -0.361664, 0.233212, 0.46, -0.391664, 0.233212, 0.489743, -0.36558, 0.233212, 0.489743, -0.36558, 0.233212, 0.46, -0.391664, 0.233212, 0.488978, -0.369429, 0.233212, 0.488978, -0.369429, 0.233212, 0.46, -0.391664, 0.233212, 0.487716, -0.373145, 0.233212, 0.485981, -0.376664, 0.233212, 0.483801, -0.379927, 0.233212, 0.481213, -0.382878, 0.233212, 0.481213, -0.382878, 0.233212, 0.46, -0.391664, 0.233212, 0.478263, -0.385465, 0.233212, 0.478263, -0.385465, 0.233212, 0.46, -0.391664, 0.233212, 0.475, -0.387645, 0.233212, 0.471481, -0.389381, 0.233212, 0.467765, -0.390642, 0.233212, 0.463916, -0.391408, 0.203212, 0.489743, -0.36558, 0.233212, 0.488978, -0.369429, 0.203212, 0.488978, -0.369429, 0.233212, 0.489743, -0.36558, 0.203212, 0.463916, -0.391408, 0.233212, 0.467765, -0.390642, 0.233212, 0.463916, -0.391408, 0.203212, 0.467765, -0.390642, 0.233212, 0.488978, -0.369429, 0.203212, 0.487716, -0.373145, 0.203212, 0.488978, -0.369429, 0.233212, 0.487716, -0.373145, 0.203212, 0.44, -0.391664, 0.233212, 0.42, -0.391664, 0.203212, 0.42, -0.391664, 0.233212, 0.44, -0.391664, 0.263212, 0.46, -0.391664, 0.263212, 0.44, -0.391664, 0.263212, 0.46, -0.391664, 0.203212, 0.44, -0.391664, 0.173212, 0.44, -0.391664, 0.263212, 0.46, -0.391664, 0.173212, 0.44, -0.391664, 0.233212, 0.46, -0.391664, 0.233212, 0.46, -0.391664, 0.173212, 0.44, -0.391664, 0.173212, 0.46, -0.391664, 0.233212, 0.46, -0.391664, 0.173212, 0.46, -0.391664, 0.203212, 0.46, -0.391664, 0.203212, 0.46, -0.361664, 0.233212, 0.46, -0.271665, 0.203212, 0.46, -0.271665, 0.233212, 0.46, -0.361664, 0.233212, 0.49, -0.301664, 0.203212, 0.49, -0.361664, 0.203212, 0.49, -0.301664, 0.233212, 0.49, -0.361664, 0.203212, 0.467765, -0.390642, 0.233212, 0.471481, -0.389381, 0.233212, 0.467765, -0.390642, 0.203212, 0.471481, -0.389381, 0.203212, 0.475, -0.387645, 0.233212, 0.478263, -0.385465, 0.233212, 0.475, -0.387645, 0.203212, 0.478263, -0.385465, 0.203212, 0.49, -0.361664, 0.233212, 0.489743, -0.36558, 0.203212, 0.489743, -0.36558, 0.233212, 0.49, -0.361664, 0.203212, 0.463916, -0.271921, 0.203212, 0.46, -0.361664, 0.203212, 0.46, -0.271665, 0.203212, 0.46, -0.361664, 0.203212, 0.463916, -0.271921, 0.203212, 0.467765, -0.272687, 0.203212, 0.46, -0.361664, 0.203212, 0.467765, -0.272687, 0.203212, 0.471481, -0.273948, 0.203212, 0.46, -0.361664, 0.203212, 0.471481, -0.273948, 0.203212, 0.475, -0.275684, 0.203212, 0.46, -0.361664, 0.203212, 0.475, -0.275684, 0.203212, 0.478263, -0.277864, 0.203212, 0.46, -0.361664, 0.203212, 0.478263, -0.277864, 0.203212, 0.481213, -0.280451, 0.203212, 0.46, -0.361664, 0.203212, 0.481213, -0.280451, 0.203212, 0.483801, -0.283402, 0.203212, 0.46, -0.361664, 0.203212, 0.483801, -0.283402, 0.203212, 0.485981, -0.286664, 0.203212, 0.46, -0.361664, 0.203212, 0.485981, -0.286664, 0.203212, 0.487716, -0.290184, 0.203212, 0.46, -0.361664, 0.203212, 0.487716, -0.290184, 0.203212, 0.488978, -0.2939, 0.203212, 0.46, -0.361664, 0.203212, 0.488978, -0.2939, 0.203212, 0.489743, -0.297749, 0.203212, 0.46, -0.361664, 0.203212, 0.489743, -0.297749, 0.203212, 0.49, -0.301664, 0.203212, 0.46, -0.361664, 0.203212, 0.49, -0.301664, 0.203212, 0.49, -0.361664, 0.203212, 0.46, -0.361664, 0.203212, 0.49, -0.361664, 0.203212, 0.489743, -0.36558, 0.203212, 0.489743, -0.36558, 0.203212, 0.46, -0.391664, 0.203212, 0.46, -0.391664, 0.203212, 0.489743, -0.36558, 0.203212, 0.488978, -0.369429, 0.203212, 0.46, -0.391664, 0.203212, 0.488978, -0.369429, 0.203212, 0.487716, -0.373145, 0.203212, 0.46, -0.391664, 0.203212, 0.487716, -0.373145, 0.203212, 0.485981, -0.376664, 0.203212, 0.46, -0.391664, 0.203212, 0.485981, -0.376664, 0.203212, 0.483801, -0.379927, 0.203212, 0.46, -0.391664, 0.203212, 0.483801, -0.379927, 0.203212, 0.481213, -0.382878, 0.203212, 0.46, -0.391664, 0.203212, 0.481213, -0.382878, 0.203212, 0.478263, -0.385465, 0.203212, 0.46, -0.391664, 0.203212, 0.478263, -0.385465, 0.203212, 0.475, -0.387645, 0.203212, 0.46, -0.391664, 0.203212, 0.475, -0.387645, 0.203212, 0.471481, -0.389381, 0.203212, 0.46, -0.391664, 0.203212, 0.471481, -0.389381, 0.203212, 0.467765, -0.390642, 0.203212, 0.46, -0.391664, 0.203212, 0.467765, -0.390642, 0.203212, 0.463916, -0.391408, 0.203212, 0.471481, -0.389381, 0.233212, 0.475, -0.387645, 0.233212, 0.471481, -0.389381, 0.203212, 0.475, -0.387645, 0.233212, 0.46, -0.361664, 0.263212, 0.46, -0.391664, 0.233212, 0.46, -0.391664, 0.263212, 0.46, -0.361664, 0.263212, 0.44, -0.391664, 0.263212, 0.46, -0.361664, 0.263212, 0.44, -0.361664, 0.263212, 0.46, -0.391664, 0.203212, 0.46, -0.391664, 0.233212, 0.463916, -0.391408, 0.233212, 0.46, -0.391664, 0.203212, 0.463916, -0.391408, 0.263212, 0.44, -0.391664, 0.233212, 0.44, -0.361664, 0.233212, 0.44, -0.391664, 0.263212, 0.44, -0.361664, 0.203212, 0.487716, -0.373145, 0.233212, 0.485981, -0.376664, 0.203212, 0.485981, -0.376664, 0.233212, 0.487716, -0.373145, 0.173212, 0.46, -0.361664, 0.173212, 0.44, -0.391664, 0.173212, 0.44, -0.361664, 0.173212, 0.46, -0.391664, 0.173212, 0.46, -0.361664, 0.203212, 0.46, -0.391664, 0.173212, 0.46, -0.391664, 0.203212, 0.46, -0.361664, 0.203212, 0.44, -0.391664, 0.173212, 0.44, -0.361664, 0.173212, 0.44, -0.391664, 0.203212, 0.44, -0.361664, 0.263212, 0.46, -0.361664, 0.233212, 0.44, -0.361664, 0.263212, 0.44, -0.361664, 0.203212, 0.44, -0.361664, 0.173212, 0.44, -0.361664, 0.173212, 0.44, -0.361664, 0.263212, 0.46, -0.361664, 0.203212, 0.46, -0.361664, 0.173212, 0.44, -0.361664, 0.203212, 0.46, -0.361664, 0.173212, 0.46, -0.361664, 0.203212, 0.46, -0.361664, 0.263212, 0.46, -0.361664, 0.233212, 0.46, -0.361664, 0.203212, 0.42, -0.361664, 0.233212, 0.42, -0.361664, 0.203212, 0.44, -0.391664, 0.203212, 0.42, -0.361664, 0.203212, 0.44, -0.361664, 0.203212, 0.42, -0.391664, 0.203212, 0.478263, -0.385465, 0.233212, 0.481213, -0.382878, 0.233212, 0.478263, -0.385465, 0.203212, 0.481213, -0.382878, 0.233212, 0.475, -0.275684, 0.203212, 0.478263, -0.277864, 0.203212, 0.475, -0.275684, 0.233212, 0.478263, -0.277864, 0.233212, 0.488978, -0.2939, 0.203212, 0.489743, -0.297749, 0.203212, 0.488978, -0.2939, 0.233212, 0.489743, -0.297749, 0.233212, 0.471481, -0.273948, 0.203212, 0.475, -0.275684, 0.203212, 0.471481, -0.273948, 0.233212, 0.475, -0.275684, 0.233212, 0.489743, -0.297749, 0.203212, 0.49, -0.301664, 0.203212, 0.489743, -0.297749, 0.233212, 0.49, -0.301664, 0.233212, 0.487716, -0.290184, 0.203212, 0.488978, -0.2939, 0.203212, 0.487716, -0.290184, 0.233212, 0.488978, -0.2939, 0.233212, 0.485981, -0.286664, 0.203212, 0.487716, -0.290184, 0.203212, 0.485981, -0.286664, 0.233212, 0.487716, -0.290184, 0.233212, 0.483801, -0.283402, 0.203212, 0.485981, -0.286664, 0.203212, 0.483801, -0.283402, 0.233212, 0.485981, -0.286664, 0.233212, 0.481213, -0.280451, 0.203212, 0.483801, -0.283402, 0.203212, 0.481213, -0.280451, 0.233212, 0.483801, -0.283402, 0.233212, 0.478263, -0.277864, 0.203212, 0.481213, -0.280451, 0.203212, 0.478263, -0.277864, 0.233212, 0.481213, -0.280451, 0.233212, 0.467765, -0.272687, 0.203212, 0.471481, -0.273948, 0.203212, 0.467765, -0.272687, 0.233212, 0.471481, -0.273948, 0.233212, 0.463916, -0.271921, 0.203212, 0.467765, -0.272687, 0.203212, 0.463916, -0.271921, 0.233212, 0.467765, -0.272687, 0.233212, 0.463916, -0.271921, 0.203212, 0.46, -0.271665, 0.233212, 0.46, -0.271665, 0.203212, 0.463916, -0.271921),
+		Vector3Array(3.13853e-06, 0.793347, -0.608769, -3.13853e-06, 0.707113, -0.7071, 3.12371e-06, 0.70712, -0.707093, -3.12371e-06, 0.793341, -0.608777, -3.12372e-06, 0.866023, -0.500004, 3.12372e-06, 0.793359, -0.608754, 3.13852e-06, 0.866015, -0.500017, -3.14081e-06, 0.79334, -0.608779, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 3.13853e-06, 0.991443, -0.130542, -3.13853e-06, 0.965928, -0.25881, 3.12371e-06, 0.965929, -0.258808, -3.12371e-06, 0.991442, -0.130545, 3.12599e-06, 0.130515, -0.991446, -2.19408e-05, 0.258802, -0.96593, -3.13854e-06, 0.130534, -0.991444, 3.13855e-06, 0.25883, -0.965923, -2.19409e-05, 0.965925, -0.258821, 2.19408e-05, 0.923888, -0.382664, 3.13852e-06, 0.965924, -0.258826, -3.14082e-06, 0.923871, -0.382704, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -6.20881e-06, -1.0, 0.0, -6.20881e-06, -1.0, 0.0, -6.20881e-06, -1.0, 0.0, 6.2088e-06, -1.0, 0.0, 6.2088e-06, -1.0, 0.0, 6.2088e-06, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 4.76718e-05, -4.37114e-08, -1.0, -4.79658e-05, -4.37114e-08, -1.0, -4.79658e-05, -4.37114e-08, -1.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 3.12372e-06, 0.258829, -0.965923, -3.12372e-06, 0.382667, -0.923886, -3.13853e-06, 0.258829, -0.965923, 3.13853e-06, 0.382667, -0.923886, 3.12371e-06, 0.500008, -0.866021, -3.12372e-06, 0.608747, -0.793364, -3.13852e-06, 0.500008, -0.866021, 3.13853e-06, 0.608746, -0.793365, 0.0, 0.997859, -0.0653966, -3.13853e-06, 0.991448, -0.130506, 3.12372e-06, 0.991448, -0.130506, 0.0, 0.997859, -0.0653966, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 6.83924e-07, -1.0, 0.0, 6.83924e-07, -1.0, 0.0, 6.83924e-07, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -1.48654e-06, -1.0, 0.0, -1.48654e-06, -1.0, 0.0, -1.48654e-06, -1.0, 0.0, 3.95299e-07, -1.0, 0.0, 3.95299e-07, -1.0, 0.0, 3.95299e-07, -1.0, 0.0, 1.28064e-06, -1.0, 0.0, 1.28064e-06, -1.0, 0.0, 1.28064e-06, -1.0, 0.0, -2.57883e-06, -1.0, 0.0, -2.57883e-06, -1.0, 0.0, -2.57883e-06, -1.0, 0.0, 1.05063e-06, -1.0, 0.0, 1.05063e-06, -1.0, 0.0, 1.05063e-06, -1.0, 0.0, -1.80815e-06, -1.0, 0.0, -1.80815e-06, -1.0, 0.0, -1.80815e-06, -1.0, 0.0, 1.781e-07, -1.0, 0.0, 1.781e-07, -1.0, 0.0, 1.781e-07, -1.0, 0.0, 6.62602e-06, -1.0, 0.0, 6.62602e-06, -1.0, 0.0, 6.62602e-06, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -7.49438e-06, -1.0, 0.0, -7.49438e-06, -1.0, 0.0, -7.49438e-06, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -3.0796e-07, -1.0, 0.0, -3.0796e-07, -1.0, 0.0, -3.0796e-07, -1.0, 0.0, 4.38572e-06, -1.0, 0.0, 4.38572e-06, -1.0, 0.0, 4.38572e-06, -1.0, 0.0, -3.55981e-06, -1.0, 0.0, -3.55981e-06, -1.0, 0.0, -3.55981e-06, -1.0, 0.0, 1.22972e-05, -1.0, 0.0, 1.22972e-05, -1.0, 0.0, 1.22972e-05, -1.0, 0.0, -8.76353e-06, -1.0, 0.0, -8.76353e-06, -1.0, 0.0, -8.76353e-06, -1.0, 0.0, -4.01962e-06, -1.0, 0.0, -4.01962e-06, -1.0, 0.0, -4.01962e-06, -1.0, 0.0, 2.37725e-05, -1.0, 0.0, 2.37725e-05, -1.0, 0.0, 2.37725e-05, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -3.88334e-05, -1.0, 0.0, -3.88334e-05, -1.0, 0.0, -3.88334e-05, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 3.12372e-06, 0.382699, -0.923873, -3.12371e-06, 0.499991, -0.866031, -3.13853e-06, 0.382699, -0.923873, 3.13852e-06, 0.499991, -0.866031, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0654057, -0.997859, -3.12599e-06, 0.130536, -0.991444, 0.0, 0.0653768, -0.997861, 3.13854e-06, 0.130518, -0.991446, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 3.14082e-06, 0.923888, -0.382662, -3.13853e-06, 0.866027, -0.499997, 3.12372e-06, 0.866027, -0.499997, -3.126e-06, 0.923888, -0.382662, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 3.1044e-06, 1.0, 0.0, 3.1044e-06, 1.0, 0.0, 3.1044e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, -4.76718e-05, -4.37114e-08, 1.0, 4.79658e-05, -4.37114e-08, 1.0, 4.79658e-05, -4.37114e-08, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 3.12372e-06, 0.608764, -0.793352, -3.12372e-06, 0.707103, -0.70711, -3.14081e-06, 0.608743, -0.793367, 3.14081e-06, 0.707121, -0.707092, -3.12371e-06, 0.500008, 0.866021, 3.12372e-06, 0.608747, 0.793365, 3.13853e-06, 0.500008, 0.866021, -3.13853e-06, 0.608747, 0.793364, -3.12372e-06, 0.965928, 0.258811, 3.12372e-06, 0.991442, 0.130545, 3.13853e-06, 0.965928, 0.258811, -3.13853e-06, 0.991442, 0.130545, -3.12372e-06, 0.3827, 0.923872, 3.12372e-06, 0.500002, 0.866024, 3.14081e-06, 0.382668, 0.923886, -3.13852e-06, 0.499991, 0.866031, -3.12372e-06, 0.991448, 0.130506, 0.0, 0.997859, 0.0653975, 3.13853e-06, 0.991447, 0.130507, 0.0, 0.997859, 0.0653966, -3.126e-06, 0.923871, 0.382704, 3.12371e-06, 0.965924, 0.258825, 3.13853e-06, 0.923887, 0.382664, -3.13853e-06, 0.965925, 0.258821, -3.12372e-06, 0.866027, 0.499997, 3.12372e-06, 0.923872, 0.382701, 3.13852e-06, 0.86603, 0.499991, -3.14082e-06, 0.923888, 0.382662, -3.12371e-06, 0.793368, 0.608742, 3.12371e-06, 0.866016, 0.500016, 3.13853e-06, 0.793358, 0.608755, -3.13854e-06, 0.866024, 0.500002, -3.12371e-06, 0.70712, 0.707094, 3.12371e-06, 0.793342, 0.608776, 3.13853e-06, 0.707113, 0.707101, -3.13853e-06, 0.793348, 0.608769, -3.12371e-06, 0.60878, 0.793339, 3.12599e-06, 0.707123, 0.707091, 3.13854e-06, 0.608762, 0.793353, -3.13854e-06, 0.707105, 0.707109, -3.12372e-06, 0.258829, 0.965923, 3.12372e-06, 0.382667, 0.923886, 3.13853e-06, 0.258829, 0.965923, -3.13853e-06, 0.382667, 0.923886, -3.12372e-06, 0.130535, 0.991444, 2.19409e-05, 0.258813, 0.965927, 3.13852e-06, 0.130549, 0.991442, -3.13851e-06, 0.258799, 0.965931, -3.13853e-06, 0.130516, 0.991446, 0.0, 0.0653938, 0.99786, 0.0, 0.0654083, 0.997859, 3.12371e-06, 0.130502, 0.991448),
+		FloatArray(-1.0, 2.48994e-06, -1.91064e-06, 1.0, -1.0, -2.2193e-06, 2.21925e-06, 1.0, -1.0, 2.20884e-06, -2.20875e-06, 1.0, -1.0, -2.47817e-06, 1.90164e-06, 1.0, -1.0, -2.70522e-06, 1.56187e-06, 1.0, -1.0, 2.47823e-06, -1.90158e-06, 1.0, -1.0, 2.718e-06, -1.56931e-06, 1.0, -1.0, -2.49173e-06, 1.91206e-06, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 4.81355e-08, -1.0, 1.0, 0.0, -6.59589e-08, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, -2.05663e-08, -1.0, 1.0, 0.0, -1.09199e-07, -1.0, 1.0, 0.0, -3.60622e-07, -1.0, 1.0, 0.0, 2.64788e-07, -1.0, 1.0, 0.0, 4.22497e-07, -1.0, 1.0, 0.0, -4.50982e-07, -1.0, 1.0, 0.0, 1.07187e-06, -1.0, 1.0, 0.0, 8.00571e-07, -1.0, 1.0, 0.0, 8.00571e-07, -1.0, 1.0, 0.0, 8.00571e-07, -1.0, 1.0, 0.0, -6.42966e-07, -1.0, 1.0, 0.0, -1.68571e-08, -1.0, 1.0, 0.0, -9.04492e-07, -1.0, 1.0, 0.0, -1.41152e-06, -1.0, 1.0, 0.0, 1.11039e-06, -1.0, 1.0, 0.0, -3.68803e-07, -1.0, 1.0, 0.0, -1.21215e-07, -1.0, 1.0, 0.0, -1.57579e-06, -1.0, 1.0, 0.0, 3.37913e-06, -1.0, 1.0, 0.0, 3.37913e-06, -1.0, 1.0, 0.0, 3.37913e-06, -1.0, 1.0, 0.0, 1.52243e-06, -1.0, 1.0, 0.0, 2.79714e-07, -1.0, 1.0, 0.0, 7.85904e-07, -1.0, 1.0, 0.0, -3.07761e-06, -1.0, 1.0, 0.0, -3.47654e-06, -1.0, 1.0, 0.0, 7.41996e-06, -1.0, 1.0, 0.0, -1.14345e-05, -1.0, 1.0, 0.0, -1.14345e-05, -1.0, 1.0, 0.0, -1.14345e-05, -1.0, 1.0, 0.0, 3.62297e-06, -1.0, 1.0, 0.0, 8.173e-06, -1.0, 1.0, 0.0, 4.19774e-06, -1.0, 1.0, 0.0, 1.15949e-05, -1.0, 1.0, 0.0, -6.24288e-06, -1.0, 1.0, 0.0, 2.35361e-05, -1.0, 1.0, -1.0, 3.11167e-06, -4.09711e-07, 1.0, -1.0, -3.03159e-06, 8.12283e-07, 1.0, -1.0, 3.01729e-06, -8.08441e-07, 1.0, -1.0, -3.09698e-06, 4.07786e-07, 1.0, -1.0, 4.07988e-07, -3.09925e-06, 1.0, -1.0, -5.67832e-06, 2.11933e-05, 1.0, -1.0, -4.09685e-07, 3.11168e-06, 1.0, -1.0, 8.12349e-07, -3.03159e-06, 1.0, -1.0, -2.11932e-05, 5.67876e-06, 1.0, -1.0, 2.02709e-05, -8.39597e-06, 1.0, -1.0, 3.03158e-06, -8.12331e-07, 1.0, -1.0, -2.90171e-06, 1.202e-06, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 8.08508e-07, -3.01727e-06, 1.0, -1.0, -1.19534e-06, 2.88596e-06, 1.0, -1.0, -8.12341e-07, 3.03157e-06, 1.0, -1.0, 1.20101e-06, -2.89964e-06, 1.0, -1.0, 1.56188e-06, -2.7052e-06, 1.0, -1.0, -1.90155e-06, 2.47825e-06, 1.0, -1.0, -1.56929e-06, 2.71803e-06, 1.0, -1.0, 1.91057e-06, -2.49e-06, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, -3.11168e-06, 4.09596e-07, 1.0, -1.0, 3.097e-06, -4.07663e-07, 1.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.44282e-07, 1.0, 1.0, 0.0, 1.44282e-07, 1.0, 1.0, 0.0, 1.44282e-07, 1.0, 1.0, 6.83924e-07, -1.21602e-07, 1.0, 1.0, 6.83924e-07, -1.21602e-07, 1.0, 1.0, 6.83924e-07, -1.21602e-07, 1.0, 1.0, 0.0, 4.31882e-07, 1.0, 1.0, 0.0, 4.31882e-07, 1.0, 1.0, 0.0, 4.31882e-07, 1.0, 1.0, -1.48654e-06, 2.26552e-07, 1.0, 1.0, -1.48654e-06, 2.26552e-07, 1.0, 1.0, -1.48654e-06, 2.26552e-07, 1.0, 1.0, 3.95299e-07, -1.12456e-06, 1.0, 1.0, 3.95299e-07, -1.12456e-06, 1.0, 1.0, 3.95299e-07, -1.12456e-06, 1.0, 1.0, 1.28064e-06, 1.04089e-06, 1.0, 1.0, 1.28064e-06, 1.04089e-06, 1.0, 1.0, 1.28064e-06, 1.04089e-06, 1.0, 1.0, -2.57883e-06, -9.5277e-07, 1.0, 1.0, -2.57883e-06, -9.5277e-07, 1.0, 1.0, -2.57883e-06, -9.5277e-07, 1.0, 1.0, 1.05063e-06, -8.53943e-07, 1.0, 1.0, 1.05063e-06, -8.53943e-07, 1.0, 1.0, 1.05063e-06, -8.53943e-07, 1.0, 1.0, -1.80815e-06, 4.89879e-07, 1.0, 1.0, -1.80815e-06, 4.89879e-07, 1.0, 1.0, -1.80815e-06, 4.89879e-07, 1.0, 1.0, 1.781e-07, 2.3162e-06, 1.0, 1.0, 1.781e-07, 2.3162e-06, 1.0, 1.0, 1.781e-07, 2.3162e-06, 1.0, 1.0, 6.62602e-06, -7.12143e-07, 1.0, 1.0, 6.62602e-06, -7.12143e-07, 1.0, 1.0, 6.62602e-06, -7.12143e-07, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -7.49438e-06, 8.05479e-07, 1.0, 1.0, -7.49438e-06, 8.05479e-07, 1.0, 1.0, -7.49438e-06, 8.05479e-07, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -3.0796e-07, -4.0049e-06, 1.0, 1.0, -3.0796e-07, -4.0049e-06, 1.0, 1.0, -3.0796e-07, -4.0049e-06, 1.0, 1.0, 4.38572e-06, -1.18824e-06, 1.0, 1.0, 4.38572e-06, -1.18824e-06, 1.0, 1.0, 4.38572e-06, -1.18824e-06, 1.0, 1.0, -3.55981e-06, 2.89348e-06, 1.0, 1.0, -3.55981e-06, 2.89348e-06, 1.0, 1.0, -3.55981e-06, 2.89348e-06, 1.0, 1.0, 1.22972e-05, 4.54313e-06, 1.0, 1.0, 1.22972e-05, 4.54313e-06, 1.0, 1.0, 1.22972e-05, 4.54313e-06, 1.0, 1.0, -8.76353e-06, -7.12317e-06, 1.0, 1.0, -8.76353e-06, -7.12317e-06, 1.0, 1.0, -8.76353e-06, -7.12317e-06, 1.0, 1.0, -4.01962e-06, 1.14345e-05, 1.0, 1.0, -4.01962e-06, 1.14345e-05, 1.0, 1.0, -4.01962e-06, 1.14345e-05, 1.0, 1.0, 2.37725e-05, -3.62297e-06, 1.0, 1.0, 2.37725e-05, -3.62297e-06, 1.0, 1.0, 2.37725e-05, -3.62297e-06, 1.0, 1.0, 0.0, -1.19384e-05, 1.0, 1.0, 0.0, -1.19384e-05, 1.0, 1.0, 0.0, -1.19384e-05, 1.0, 1.0, -3.88334e-05, 6.90468e-06, 1.0, 1.0, -3.88334e-05, 6.90468e-06, 1.0, 1.0, -3.88334e-05, 6.90468e-06, 1.0, 1.0, 0.0, -2.50071e-05, 1.0, 1.0, 0.0, -2.50071e-05, 1.0, 1.0, 0.0, -2.50071e-05, 1.0, 1.0, -1.0, 1.19544e-06, -2.88592e-06, 1.0, -1.0, -1.56183e-06, 2.70523e-06, 1.0, -1.0, -1.20111e-06, 2.8996e-06, 1.0, -1.0, 1.56923e-06, -2.71806e-06, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, -4.08054e-07, 3.09924e-06, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 4.09635e-07, -3.11169e-06, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 2.90177e-06, -1.20187e-06, 1.0, -1.0, -2.71805e-06, 1.56926e-06, 1.0, -1.0, 2.70522e-06, -1.56185e-06, 1.0, -1.0, -2.88807e-06, 1.1962e-06, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -1.0, 1.90161e-06, -2.47821e-06, 1.0, -1.0, -2.20879e-06, 2.20882e-06, 1.0, -1.0, -1.91195e-06, 2.49182e-06, 1.0, -1.0, 2.22093e-06, -2.22084e-06, 1.0, 1.0, 1.56188e-06, 2.7052e-06, 1.0, 1.0, -1.90155e-06, -2.47825e-06, 1.0, 1.0, -1.56929e-06, -2.71803e-06, 1.0, 1.0, 1.91057e-06, 2.49e-06, 1.0, 1.0, 3.01729e-06, 8.08451e-07, 1.0, 1.0, -3.09698e-06, -4.07786e-07, 1.0, 1.0, -3.03159e-06, -8.12284e-07, 1.0, 1.0, 3.11167e-06, 4.0972e-07, 1.0, 1.0, 1.19545e-06, 2.88592e-06, 1.0, 1.0, -1.56187e-06, -2.70522e-06, 1.0, 1.0, -1.20189e-06, -2.90175e-06, 1.0, 1.0, 1.56923e-06, 2.71806e-06, 1.0, 1.0, 3.097e-06, 4.07663e-07, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -3.11168e-06, -4.09599e-07, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 2.88802e-06, 1.19633e-06, 1.0, 1.0, -3.01727e-06, -8.08497e-07, 1.0, 1.0, -2.89965e-06, -1.201e-06, 1.0, 1.0, 3.03159e-06, 8.12317e-07, 1.0, 1.0, 2.70522e-06, 1.56185e-06, 1.0, 1.0, -2.88592e-06, -1.19545e-06, 1.0, 1.0, -2.71806e-06, -1.56923e-06, 1.0, 1.0, 2.90176e-06, 1.20187e-06, 1.0, 1.0, 2.47825e-06, 1.90153e-06, 1.0, 1.0, -2.70518e-06, -1.56191e-06, 1.0, 1.0, -2.48998e-06, -1.9106e-06, 1.0, 1.0, 2.71805e-06, 1.56927e-06, 1.0, 1.0, 2.20884e-06, 2.20876e-06, 1.0, 1.0, -2.47817e-06, -1.90164e-06, 1.0, 1.0, -2.2193e-06, -2.21926e-06, 1.0, 1.0, 2.48995e-06, 1.91064e-06, 1.0, 1.0, 1.90165e-06, 2.47816e-06, 1.0, 1.0, -2.21046e-06, -2.21036e-06, 1.0, 1.0, -1.91062e-06, -2.48997e-06, 1.0, 1.0, 2.21927e-06, 2.21929e-06, 1.0, 1.0, 8.08508e-07, 3.01727e-06, 1.0, 1.0, -1.19534e-06, -2.88596e-06, 1.0, 1.0, -8.12341e-07, -3.03157e-06, 1.0, 1.0, 1.20101e-06, 2.89964e-06, 1.0, 1.0, 4.07755e-07, 3.097e-06, 1.0, 1.0, -5.67858e-06, -2.11933e-05, 1.0, 1.0, -4.09732e-07, -3.11166e-06, 1.0, 1.0, 8.12245e-07, 3.03159e-06, 1.0, 1.0, 4.0963e-07, 3.11169e-06, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -4.0765e-07, -3.097e-06, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(-8.00047, -0.31289, -9.18157, -0.158394, -8.00047, -0.158394, -9.18157, -0.31289, -9.18157, 2.70034, -8.00047, 2.85484, -8.00047, 2.70034, -9.18157, 2.85484, 14.2388, -15.5354, 15.4199, -16.3228, 14.2388, -16.3228, 15.4199, -15.5354, 14.2388, -17.1102, 10.7056, -17.2644, 10.6955, -17.1102, 10.7357, -17.4159, 10.7854, -17.5622, 10.8537, -17.7008, 10.9395, -17.8292, 11.0414, -17.9454, 11.1575, -18.0473, 11.286, -18.1331, 11.286, -18.1331, 14.2388, -17.1102, 11.4246, -18.2014, 11.4246, -18.2014, 14.2388, -17.1102, 11.5709, -18.2511, 11.7224, -18.2812, 11.8766, -18.2913, 14.2388, -18.2913, 15.4199, -17.1102, 14.3929, -18.2812, 14.3929, -18.2812, 15.4199, -17.1102, 14.5445, -18.2511, 14.5445, -18.2511, 15.4199, -17.1102, 14.6907, -18.2014, 14.8293, -18.1331, 14.9578, -18.0473, 15.0739, -17.9454, 15.0739, -17.9454, 15.4199, -17.1102, 15.1758, -17.8292, 15.1758, -17.8292, 15.4199, -17.1102, 15.2616, -17.7008, 15.33, -17.5622, 15.3796, -17.4159, 15.4098, -17.2644, -8.00047, 11.3548, -9.18157, 11.5093, -8.00047, 11.5093, -9.18157, 11.3548, -8.00047, -13.9072, -9.18157, -14.0617, -9.18157, -13.9072, -8.00047, -14.0617, -9.18157, 8.58452, -8.00047, 8.73901, -8.00047, 8.58452, -9.18157, 8.73901, -8.00047, -16.3228, -9.18157, -15.5354, -8.00047, -15.5354, -9.18157, -16.3228, -10.3627, -17.1102, -10.3627, -16.3228, -10.3627, -17.1102, -8.00047, -16.3228, -6.81937, -16.3228, -10.3627, -17.1102, -6.81937, -16.3228, -9.18157, -17.1102, -9.18157, -17.1102, -6.81937, -16.3228, -6.81937, -17.1102, -9.18157, -17.1102, -6.81937, -17.1102, -8.00047, -17.1102, -8.00047, -13.2388, -9.18157, -9.69545, -8.00047, -9.69545, -9.18157, -13.2388, 9.18157, -10.8766, 8.00047, -13.2388, 8.00047, -10.8766, 9.18157, -13.2388, -8.00047, -11.495, -9.18157, -11.6495, -9.18157, -11.495, -8.00047, -11.6495, -8.00047, -6.07023, -9.18157, -6.22473, -9.18157, -6.07023, -8.00047, -6.22473, -8.00047, 13.9466, -9.18157, 14.1011, -8.00047, 14.1011, -9.18157, 13.9466, -10.7056, -17.2644, -14.2388, -17.1102, -10.6955, -17.1102, -14.2388, -17.1102, -10.7056, -17.2644, -10.7357, -17.4159, -14.2388, -17.1102, -10.7357, -17.4159, -10.7854, -17.5622, -14.2388, -17.1102, -10.7854, -17.5622, -10.8537, -17.7008, -14.2388, -17.1102, -10.8537, -17.7008, -10.9395, -17.8292, -14.2388, -17.1102, -10.9395, -17.8292, -11.0414, -17.9454, -14.2388, -17.1102, -11.0414, -17.9454, -11.1575, -18.0473, -14.2388, -17.1102, -11.1575, -18.0473, -11.286, -18.1331, -14.2388, -17.1102, -11.286, -18.1331, -11.4246, -18.2014, -14.2388, -17.1102, -11.4246, -18.2014, -11.5709, -18.2511, -14.2388, -17.1102, -11.5709, -18.2511, -11.7224, -18.2812, -14.2388, -17.1102, -11.7224, -18.2812, -11.8766, -18.2913, -14.2388, -17.1102, -11.8766, -18.2913, -14.2388, -18.2913, -14.2388, -17.1102, -14.2388, -18.2913, -14.3929, -18.2812, -14.3929, -18.2812, -15.4199, -17.1102, -15.4199, -17.1102, -14.3929, -18.2812, -14.5445, -18.2511, -15.4199, -17.1102, -14.5445, -18.2511, -14.6907, -18.2014, -15.4199, -17.1102, -14.6907, -18.2014, -14.8293, -18.1331, -15.4199, -17.1102, -14.8293, -18.1331, -14.9578, -18.0473, -15.4199, -17.1102, -14.9578, -18.0473, -15.0739, -17.9454, -15.4199, -17.1102, -15.0739, -17.9454, -15.1758, -17.8292, -15.4199, -17.1102, -15.1758, -17.8292, -15.2616, -17.7008, -15.4199, -17.1102, -15.2616, -17.7008, -15.33, -17.5622, -15.4199, -17.1102, -15.33, -17.5622, -15.3796, -17.4159, -15.4199, -17.1102, -15.3796, -17.4159, -15.4098, -17.2644, -8.00047, -8.86769, -9.18157, -9.02218, -9.18157, -8.86769, -8.00047, -9.02218, 9.18157, -13.2388, 10.3627, -14.4199, 9.18157, -14.4199, 10.3627, -13.2388, 15.4199, -16.3228, 14.2388, -17.1102, 14.2388, -16.3228, 15.4199, -17.1102, -8.00047, -16.063, -9.18157, -16.2174, -9.18157, -16.063, -8.00047, -16.2174, -10.3627, -14.4199, -9.18157, -13.2388, -9.18157, -14.4199, -10.3627, -13.2388, -8.00047, 5.68315, -9.18157, 5.83765, -8.00047, 5.83765, -9.18157, 5.68315, -14.2388, -17.1102, -15.4199, -16.3228, -14.2388, -16.3228, -15.4199, -17.1102, 6.81937, -13.2388, 8.00047, -14.4199, 6.81937, -14.4199, 8.00047, -13.2388, -8.00047, -14.4199, -6.81937, -13.2388, -6.81937, -14.4199, -8.00047, -13.2388, 10.3627, -17.1102, 9.18157, -16.3228, 10.3627, -16.3228, 8.00047, -16.3228, 6.81937, -16.3228, 6.81937, -16.3228, 10.3627, -17.1102, 8.00047, -17.1102, 6.81937, -16.3228, 8.00047, -17.1102, 6.81937, -17.1102, 8.00047, -17.1102, 10.3627, -17.1102, 9.18157, -17.1102, 8.00047, -15.5354, 9.18157, -15.5354, -15.4199, -16.3228, -14.2388, -15.5354, -14.2388, -16.3228, -15.4199, -15.5354, -8.00047, -3.15048, -9.18157, -3.30498, -9.18157, -3.15048, -8.00047, -3.30498, 9.18157, -20.5791, 8.00047, -20.7336, 8.00047, -20.5791, 9.18157, -20.7336, 9.18157, -14.1042, 8.00047, -14.2587, 8.00047, -14.1042, 9.18157, -14.2587, 9.18157, -20.4182, 8.00047, -20.5727, 8.00047, -20.4182, 9.18157, -20.5727, 9.18157, -11.9583, 8.00047, -12.1128, 8.00047, -11.9583, 9.18157, -12.1128, 9.18157, -15.9904, 8.00047, -16.1449, 8.00047, -15.9904, 9.18157, -16.1449, 9.18157, -17.5845, 8.00047, -17.739, 8.00047, -17.5845, 9.18157, -17.739, 9.18157, -18.8593, 8.00047, -19.0138, 8.00047, -18.8593, 9.18157, -19.0138, 9.18157, -19.7929, 8.00047, -19.9474, 8.00047, -19.7929, 9.18157, -19.9474, 9.18157, -20.3695, 8.00047, -20.524, 8.00047, -20.3695, 9.18157, -20.524, 9.18157, -19.8895, 8.00047, -20.044, 8.00047, -19.8895, 9.18157, -20.044, 9.18157, -19.002, 8.00047, -19.1565, 8.00047, -19.002, 9.18157, -19.1565, 9.18157, -17.9255, 8.00047, -17.771, 9.18157, -17.771, 8.00047, -17.9255),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 1, 3, 0, 4, 6, 5, 5, 7, 4, 8, 10, 9, 9, 11, 8, 12, 14, 13, 13, 15, 12, 15, 16, 12, 16, 17, 12, 17, 18, 12, 18, 19, 12, 19, 20, 12, 20, 21, 12, 22, 24, 23, 25, 27, 26, 27, 28, 26, 28, 29, 26, 29, 30, 26, 30, 31, 26, 30, 32, 31, 33, 35, 34, 36, 38, 37, 38, 39, 37, 39, 40, 37, 40, 41, 37, 42, 44, 43, 45, 47, 46, 47, 48, 46, 48, 49, 46, 49, 50, 46, 51, 53, 52, 52, 54, 51, 55, 57, 56, 56, 58, 55, 59, 61, 60, 60, 62, 59, 63, 65, 64, 64, 66, 63, 67, 63, 66, 66, 68, 67, 69, 71, 70, 72, 74, 73, 75, 77, 76, 78, 80, 79, 81, 83, 82, 82, 84, 81, 85, 87, 86, 86, 88, 85, 89, 91, 90, 90, 92, 89, 93, 95, 94, 94, 96, 93, 97, 99, 98, 98, 100, 97, 101, 103, 102, 104, 106, 105, 107, 109, 108, 110, 112, 111, 113, 115, 114, 116, 118, 117, 119, 121, 120, 122, 124, 123, 125, 127, 126, 128, 130, 129, 131, 133, 132, 134, 136, 135, 137, 139, 138, 140, 142, 141, 137, 144, 143, 145, 147, 146, 148, 150, 149, 151, 153, 152, 154, 156, 155, 157, 159, 158, 160, 162, 161, 163, 165, 164, 166, 168, 167, 169, 171, 170, 172, 174, 173, 175, 177, 176, 176, 178, 175, 179, 181, 180, 180, 182, 179, 183, 185, 184, 184, 186, 183, 187, 189, 188, 188, 190, 187, 191, 193, 192, 192, 194, 191, 195, 197, 196, 196, 198, 195, 199, 201, 200, 200, 202, 199, 203, 205, 204, 204, 206, 203, 207, 209, 208, 208, 210, 207, 211, 213, 212, 212, 214, 211, 214, 215, 211, 216, 218, 217, 219, 221, 220, 222, 224, 223, 225, 214, 212, 212, 226, 225, 227, 229, 228, 228, 230, 227, 231, 233, 232, 232, 234, 231, 235, 237, 236, 236, 238, 235, 239, 241, 240, 240, 242, 239, 243, 245, 244, 244, 246, 243, 247, 249, 248, 248, 250, 247, 251, 253, 252, 252, 254, 251, 255, 257, 256, 256, 258, 255, 259, 261, 260, 260, 262, 259, 263, 265, 264, 264, 266, 263, 267, 269, 268, 268, 270, 267, 271, 273, 272, 272, 274, 271, 275, 277, 276, 276, 278, 275, 279, 281, 280, 280, 282, 279)
+	],
+	"morph_arrays":[]
+}
+surfaces/4 = {
+	"material":SubResource(10),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.233212, 0.46, -0.391664, 0.203212, 0.46, -0.361664, 0.203212, 0.46, -0.391664, 0.203212, 0.46, -0.361664, 0.233212, 0.46, -0.391664, 0.233212, 0.46, -0.361664),
+		Vector3Array(0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0),
+		FloatArray(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(-9.18157, 11.5093, -8.00047, 11.3548, -9.18157, 11.3548, -9.18157, 11.5093, -8.00047, 11.3548, -9.18157, 11.3548),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 3, 5, 4)
+	],
+	"morph_arrays":[]
+}
+
+[sub_resource id=12 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(1)
+
+[sub_resource id=13 type="Shader"]
+
+resource_name = "Shader Nodetree"
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+
+
+void node_bsdf_principled(vec4 color, float subsurface, vec4 subsurface_color,
+        float metallic, float specular, float roughness, float clearcoat,
+        float clearcoat_roughness, float anisotropy, float transmission,
+        float IOR, out vec3 albedo, out float sss_strength_out,
+        out float metallic_out, out float specular_out,
+        out float roughness_out, out float clearcoat_out,
+        out float clearcoat_gloss_out, out float anisotropy_out,
+        out float transmission_out, out float ior) {
+    metallic = clamp(metallic, 0.0, 1.0);
+    transmission = clamp(transmission, 0.0, 1.0);
+
+    subsurface = subsurface * (1.0 - metallic);
+
+    albedo = mix(color.rgb, subsurface_color.rgb, subsurface);
+    sss_strength_out = subsurface;
+    metallic_out = metallic;
+    specular_out = pow((IOR - 1.0)/(IOR + 1.0), 2)/0.08;
+    roughness_out = roughness;
+    clearcoat_out = clearcoat * (1.0 - transmission);
+    clearcoat_gloss_out = 1.0 - clearcoat_roughness;
+    anisotropy_out = clamp(anisotropy, 0.0, 1.0);
+    transmission_out = (1.0 - transmission) * (1.0 - metallic);
+    ior = IOR;
+}
+
+void vertex () {
+}
+
+void fragment () {
+	
+	// node: 'Principled BSDF'
+	// type: 'ShaderNodeBsdfPrincipled'
+	// input sockets handling
+	vec4 node0_in0_basecolor = vec4(0.6780000329017639, 0.4559476673603058,
+		0.299030601978302, 1.0);
+	float node0_in1_subsurface = float(0.0);
+	vec3 node0_in2_subsurfaceradius = vec3(1.0, 0.20000000298023224,
+		0.10000000149011612);
+	vec4 node0_in3_subsurfacecolor = vec4(0.800000011920929, 0.800000011920929,
+		0.800000011920929, 1.0);
+	float node0_in4_metallic = float(0.0);
+	float node0_in5_specular = float(0.5);
+	float node0_in6_speculartint = float(0.0);
+	float node0_in7_roughness = float(1.0);
+	float node0_in8_anisotropic = float(0.0);
+	float node0_in9_anisotropicrotation = float(0.0);
+	float node0_in10_sheen = float(0.0);
+	float node0_in11_sheentint = float(0.5);
+	float node0_in12_clearcoat = float(0.0);
+	float node0_in13_clearcoatroughness = float(0.029999999329447746);
+	float node0_in14_ior = float(1.4500000476837158);
+	float node0_in15_transmission = float(0.0);
+	float node0_in16_transmissionroughness = float(0.0);
+	vec4 node0_in17_emission = vec4(0.0, 0.0, 0.0, 1.0);
+	float node0_in18_alpha = float(1.0);
+	vec3 node0_in19_normal = NORMAL;
+	vec3 node0_in20_clearcoatnormal = vec3(0.0, 0.0, 0.0);
+	vec3 node0_in21_tangent = TANGENT;
+	// output sockets definitions
+	vec3 node0_bsdf_out0_albedo;
+	float node0_bsdf_out1_sss_strength;
+	float node0_bsdf_out3_specular;
+	float node0_bsdf_out2_metallic;
+	float node0_bsdf_out4_roughness;
+	float node0_bsdf_out5_clearcoat;
+	float node0_bsdf_out6_clearcoat_gloss;
+	float node0_bsdf_out7_anisotropy;
+	float node0_bsdf_out8_transmission;
+	float node0_bsdf_out9_ior;
+	
+	node_bsdf_principled(node0_in0_basecolor, node0_in1_subsurface,
+		node0_in3_subsurfacecolor, node0_in4_metallic, node0_in5_specular,
+		node0_in7_roughness, node0_in12_clearcoat, node0_in13_clearcoatroughness,
+		node0_in8_anisotropic, node0_in15_transmission, node0_in14_ior,
+		node0_bsdf_out0_albedo, node0_bsdf_out1_sss_strength, node0_bsdf_out2_metallic,
+		node0_bsdf_out3_specular, node0_bsdf_out4_roughness, node0_bsdf_out5_clearcoat,
+		node0_bsdf_out6_clearcoat_gloss, node0_bsdf_out7_anisotropy,
+		node0_bsdf_out8_transmission, node0_bsdf_out9_ior);
+	
+	
+	ALBEDO = node0_bsdf_out0_albedo;
+	SSS_STRENGTH = node0_bsdf_out1_sss_strength;
+	SPECULAR = node0_bsdf_out3_specular;
+	METALLIC = node0_bsdf_out2_metallic;
+	ROUGHNESS = node0_bsdf_out4_roughness;
+	CLEARCOAT = node0_bsdf_out5_clearcoat;
+	CLEARCOAT_GLOSS = node0_bsdf_out6_clearcoat_gloss;
+	NORMAL = node0_in19_normal;
+	// uncomment it when you need it
+	// TRANSMISSION = vec3(1.0, 1.0, 1.0) * node0_bsdf_out8_transmission;
+	// uncomment it when you are modifing TANGENT
+	// TANGENT = normalize(cross(cross(node0_in21_tangent, NORMAL), NORMAL));
+	// BINORMAL = cross(TANGENT, NORMAL);
+	// uncomment it when you have tangent(UV) set
+	// ANISOTROPY = node0_bsdf_out7_anisotropy;
+}
+"
+
+[sub_resource id=14 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(13)
+
+[sub_resource id=15 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(3)
+
+[sub_resource id=16 type="ArrayMesh"]
+
+resource_name = "Mesh door"
+surfaces/0 = {
+	"material":SubResource(12),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.0, 0.27807, -0.01, 0.376312, 0.0, -0.01, 0.0, 0.0, -0.01, 0.376312, 0.27807, -0.01, 0.376312, 0.0, -0.01, 0.0, 0.0, 0.01, 0.0, 0.0, -0.01, 0.376312, 0.0, 0.01, 0.376312, 0.27807, 0.01, 0.0, 0.27807, -0.01, 0.0, 0.27807, 0.01, 0.376312, 0.27807, -0.01, 0.376312, 0.0, -0.01, 0.376312, 0.27807, 0.01, 0.376312, 0.0, 0.01, 0.376312, 0.27807, -0.01, 0.0, 0.27807, -0.01, 0.0, 0.0, 0.01, 0.0, 0.27807, 0.01, 0.0, 0.0, -0.01, 0.35597, 0.0203419, 0.01, 0.33097, 0.217728, 0.01, 0.0203419, 0.0203419, 0.01, 0.35597, 0.257728, 0.01, 0.33097, 0.237728, 0.01, 0.33097, 0.237728, 0.01, 0.35597, 0.257728, 0.01, 0.25097, 0.237728, 0.01, 0.25097, 0.217728, 0.01, 0.0203419, 0.0203419, 0.01, 0.25097, 0.217728, 0.01, 0.0203419, 0.257728, 0.01, 0.0203419, 0.257728, 0.01, 0.25097, 0.217728, 0.01, 0.25097, 0.237728, 0.01, 0.35597, 0.257728, 0.01),
+		Vector3Array(0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0),
+		FloatArray(-1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 3.06562e-08, 0.0, 1.0, 1.0, -3.11679e-07, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 7.44655e-07, 0.0, 1.0, 1.0, -9.46224e-07, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 5.53066e-08, 0.0, 1.0, 1.0, 5.53066e-08, 0.0, 1.0, 1.0, 5.53066e-08, 0.0, 1.0, 1.0, 5.09042e-08, 0.0, 1.0, 1.0, 1.0257e-07, 0.0, 1.0, 1.0, 3.75738e-08, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(0.0, -9.94763, -14.8154, 1.0, 0.0, 1.0, -14.8154, -9.94763, -14.8154, 0.606299, 0.0, 1.3937, 0.0, 0.606299, -14.8154, 1.3937, 14.8154, 1.3937, 0.0, 0.606299, 0.0, 1.3937, 14.8154, 0.606299, 0.393701, 1.0, -0.393701, -9.94763, -0.393701, 1.0, 0.393701, -9.94763, -0.393701, -9.94763, 0.393701, 1.0, 0.393701, -9.94763, -0.393701, 1.0, 14.0146, 0.199136, 13.0303, -7.57196, 0.800864, 0.199136, 14.0146, -9.14677, 13.0303, -8.35936, 13.0303, -8.35936, 14.0146, -9.14677, 9.8807, -8.35936, 9.8807, -7.57196, 0.800864, 0.199136, 9.8807, -7.57196, 0.800864, -9.14677, 0.800864, -9.14677, 9.8807, -7.57196, 9.8807, -8.35936, 14.0146, -9.14677),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 1, 3, 0, 4, 6, 5, 5, 7, 4, 8, 10, 9, 9, 11, 8, 12, 14, 13, 13, 15, 12, 16, 18, 17, 17, 19, 16, 20, 22, 21, 21, 23, 20, 21, 24, 23, 25, 27, 26, 28, 21, 22, 29, 31, 30, 32, 34, 33, 32, 35, 34)
+	],
+	"morph_arrays":[]
+}
+surfaces/1 = {
+	"material":SubResource(14),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.376312, 0.0, 0.01, 0.35597, 0.0203419, 0.01, 0.0, 0.0, 0.01, 0.35597, 0.0203419, 0.01, 0.376312, 0.0, 0.01, 0.376312, 0.27807, 0.01, 0.35597, 0.0203419, 0.01, 0.376312, 0.27807, 0.01, 0.35597, 0.257728, 0.01, 0.35597, 0.257728, 0.01, 0.376312, 0.27807, 0.01, 0.0203419, 0.257728, 0.01, 0.0203419, 0.0203419, 0.01, 0.0, 0.0, 0.01, 0.35597, 0.0203419, 0.01, 0.0203419, 0.0203419, 0.01, 0.0, 0.27807, 0.01, 0.0203419, 0.257728, 0.01, 0.376312, 0.27807, 0.01),
+		Vector3Array(0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -6.82056e-08, 1.0, 0.0, -6.82056e-08, 1.0, 0.0, -6.82056e-08, 1.0, 0.0, 6.82056e-08, 1.0, 0.0, 6.82056e-08, 1.0, 0.0, 6.82056e-08, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0),
+		FloatArray(1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 3.06562e-08, 0.0, 1.0, 1.0, 1.25408e-06, 0.0, 1.0, 1.0, 7.44655e-07, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -1.31009e-08, 0.0, 1.0, 1.0, -1.76299e-07, 0.0, 1.0, 1.0, -1.98353e-07, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(14.8154, 1.0, 14.0146, 0.199136, 0.0, 1.0, 14.0146, 0.199136, 14.8154, 1.0, 14.8154, -9.94763, 14.0146, 0.199136, 14.8154, -9.94763, 14.0146, -9.14677, 14.0146, -9.14677, 14.8154, -9.94763, 0.800864, -9.14677, 0.800864, 0.199136, 0.0, 1.0, 14.0146, 0.199136, 0.800864, 0.199136, 0.0, -9.94763, 0.800864, -9.14677, 14.8154, -9.94763),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 3, 5, 4, 6, 8, 7, 9, 11, 10, 12, 14, 13, 2, 16, 15, 16, 17, 15, 16, 18, 17)
+	],
+	"morph_arrays":[]
+}
+surfaces/2 = {
+	"material":SubResource(15),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.33097, 0.227728, 0.03, 0.25097, 0.217728, 0.03, 0.33097, 0.217728, 0.03, 0.25097, 0.227728, 0.03, 0.33097, 0.217728, 0.01, 0.25097, 0.217728, 0.03, 0.25097, 0.217728, 0.01, 0.25097, 0.217728, 0.03, 0.33097, 0.217728, 0.01, 0.33097, 0.217728, 0.03, 0.33097, 0.217728, 0.01, 0.33097, 0.227728, 0.03, 0.33097, 0.217728, 0.03, 0.33097, 0.227728, 0.03, 0.33097, 0.217728, 0.01, 0.33097, 0.237728, 0.02, 0.33097, 0.237728, 0.01, 0.33097, 0.237728, 0.02, 0.25097, 0.237728, 0.01, 0.25097, 0.237728, 0.02, 0.33097, 0.237728, 0.01, 0.25097, 0.237728, 0.02, 0.25097, 0.217728, 0.03, 0.25097, 0.227728, 0.03, 0.25097, 0.217728, 0.03, 0.25097, 0.237728, 0.02, 0.25097, 0.217728, 0.01, 0.25097, 0.217728, 0.01, 0.25097, 0.237728, 0.02, 0.25097, 0.237728, 0.01, 0.33097, 0.237728, 0.02, 0.25097, 0.227728, 0.03, 0.33097, 0.227728, 0.03, 0.25097, 0.227728, 0.03, 0.33097, 0.237728, 0.02, 0.25097, 0.237728, 0.02),
+		Vector3Array(0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.707107, 0.707107, 0.0, 0.707107, 0.707107, 0.0, 0.707107, 0.707107, 0.0, 0.707107, 0.707107, 0.0, 0.707107, 0.707107, 0.0, 0.707107, 0.707107),
+		FloatArray(1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 5.12538e-07, -1.0, 1.0, 0.0, 2.97899e-07, -1.0, 1.0, 0.0, 2.71702e-07, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.65589e-06, 1.0, 1.0, 0.0, -1.65589e-06, 1.0, 1.0, 0.0, -1.65589e-06, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(13.0303, -7.96566, 9.8807, -7.57196, 13.0303, -7.57196, 9.8807, -7.96566, -13.0303, 1.3937, -9.8807, 2.1811, -9.8807, 1.3937, -9.8807, 2.1811, -13.0303, 1.3937, -13.0303, 2.1811, -0.393701, -7.57196, -1.1811, -7.96566, -1.1811, -7.57196, -1.1811, -7.96566, -0.393701, -7.57196, -0.787402, -8.35936, -0.393701, -8.35936, 13.0303, 1.7874, 9.8807, 1.3937, 9.8807, 1.7874, 13.0303, 1.3937, 0.787402, -8.35936, 1.1811, -7.57196, 1.1811, -7.96566, 1.1811, -7.57196, 0.787402, -8.35936, 0.393701, -7.57196, 0.393701, -7.57196, 0.787402, -8.35936, 0.393701, -8.35936, 13.0303, -5.06129, 9.8807, -4.50452, 13.0303, -4.50452, 9.8807, -4.50452, 13.0303, -5.06129, 9.8807, -5.06129),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 1, 3, 0, 4, 6, 5, 7, 9, 8, 10, 12, 11, 13, 15, 14, 15, 16, 14, 17, 19, 18, 18, 20, 17, 21, 23, 22, 24, 26, 25, 27, 29, 28, 30, 32, 31, 33, 35, 34)
+	],
+	"morph_arrays":[]
+}
+
+[node type="Spatial" name="Scene"]
+
+[node name="kitchenSink(Clone)" type="MeshInstance" parent="."]
+
+mesh = SubResource(11)
+visible = true
+transform = Transform(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0)
+
+[node name="door" type="MeshInstance" parent="kitchenSink(Clone)"]
+
+mesh = SubResource(16)
+visible = true
+transform = Transform(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0268442, 0.085086, -0.03)

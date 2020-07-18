@@ -1,0 +1,521 @@
+[gd_scene load_steps=1 format=2]
+
+[sub_resource id=1 type="Shader"]
+
+resource_name = "Shader Nodetree"
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+
+
+void node_bsdf_principled(vec4 color, float subsurface, vec4 subsurface_color,
+        float metallic, float specular, float roughness, float clearcoat,
+        float clearcoat_roughness, float anisotropy, float transmission,
+        float IOR, out vec3 albedo, out float sss_strength_out,
+        out float metallic_out, out float specular_out,
+        out float roughness_out, out float clearcoat_out,
+        out float clearcoat_gloss_out, out float anisotropy_out,
+        out float transmission_out, out float ior) {
+    metallic = clamp(metallic, 0.0, 1.0);
+    transmission = clamp(transmission, 0.0, 1.0);
+
+    subsurface = subsurface * (1.0 - metallic);
+
+    albedo = mix(color.rgb, subsurface_color.rgb, subsurface);
+    sss_strength_out = subsurface;
+    metallic_out = metallic;
+    specular_out = pow((IOR - 1.0)/(IOR + 1.0), 2)/0.08;
+    roughness_out = roughness;
+    clearcoat_out = clearcoat * (1.0 - transmission);
+    clearcoat_gloss_out = 1.0 - clearcoat_roughness;
+    anisotropy_out = clamp(anisotropy, 0.0, 1.0);
+    transmission_out = (1.0 - transmission) * (1.0 - metallic);
+    ior = IOR;
+}
+
+void vertex () {
+}
+
+void fragment () {
+	
+	// node: 'Principled BSDF'
+	// type: 'ShaderNodeBsdfPrincipled'
+	// input sockets handling
+	vec4 node0_in0_basecolor = vec4(0.7406105399131775, 0.8228667378425598,
+		0.8396226167678833, 1.0);
+	float node0_in1_subsurface = float(0.0);
+	vec3 node0_in2_subsurfaceradius = vec3(1.0, 0.20000000298023224,
+		0.10000000149011612);
+	vec4 node0_in3_subsurfacecolor = vec4(0.800000011920929, 0.800000011920929,
+		0.800000011920929, 1.0);
+	float node0_in4_metallic = float(0.0);
+	float node0_in5_specular = float(0.5);
+	float node0_in6_speculartint = float(0.0);
+	float node0_in7_roughness = float(1.0);
+	float node0_in8_anisotropic = float(0.0);
+	float node0_in9_anisotropicrotation = float(0.0);
+	float node0_in10_sheen = float(0.0);
+	float node0_in11_sheentint = float(0.5);
+	float node0_in12_clearcoat = float(0.0);
+	float node0_in13_clearcoatroughness = float(0.029999999329447746);
+	float node0_in14_ior = float(1.4500000476837158);
+	float node0_in15_transmission = float(0.0);
+	float node0_in16_transmissionroughness = float(0.0);
+	vec4 node0_in17_emission = vec4(0.0, 0.0, 0.0, 1.0);
+	float node0_in18_alpha = float(1.0);
+	vec3 node0_in19_normal = NORMAL;
+	vec3 node0_in20_clearcoatnormal = vec3(0.0, 0.0, 0.0);
+	vec3 node0_in21_tangent = TANGENT;
+	// output sockets definitions
+	vec3 node0_bsdf_out0_albedo;
+	float node0_bsdf_out1_sss_strength;
+	float node0_bsdf_out3_specular;
+	float node0_bsdf_out2_metallic;
+	float node0_bsdf_out4_roughness;
+	float node0_bsdf_out5_clearcoat;
+	float node0_bsdf_out6_clearcoat_gloss;
+	float node0_bsdf_out7_anisotropy;
+	float node0_bsdf_out8_transmission;
+	float node0_bsdf_out9_ior;
+	
+	node_bsdf_principled(node0_in0_basecolor, node0_in1_subsurface,
+		node0_in3_subsurfacecolor, node0_in4_metallic, node0_in5_specular,
+		node0_in7_roughness, node0_in12_clearcoat, node0_in13_clearcoatroughness,
+		node0_in8_anisotropic, node0_in15_transmission, node0_in14_ior,
+		node0_bsdf_out0_albedo, node0_bsdf_out1_sss_strength, node0_bsdf_out2_metallic,
+		node0_bsdf_out3_specular, node0_bsdf_out4_roughness, node0_bsdf_out5_clearcoat,
+		node0_bsdf_out6_clearcoat_gloss, node0_bsdf_out7_anisotropy,
+		node0_bsdf_out8_transmission, node0_bsdf_out9_ior);
+	
+	
+	ALBEDO = node0_bsdf_out0_albedo;
+	SSS_STRENGTH = node0_bsdf_out1_sss_strength;
+	SPECULAR = node0_bsdf_out3_specular;
+	METALLIC = node0_bsdf_out2_metallic;
+	ROUGHNESS = node0_bsdf_out4_roughness;
+	CLEARCOAT = node0_bsdf_out5_clearcoat;
+	CLEARCOAT_GLOSS = node0_bsdf_out6_clearcoat_gloss;
+	NORMAL = node0_in19_normal;
+	// uncomment it when you need it
+	// TRANSMISSION = vec3(1.0, 1.0, 1.0) * node0_bsdf_out8_transmission;
+	// uncomment it when you are modifing TANGENT
+	// TANGENT = normalize(cross(cross(node0_in21_tangent, NORMAL), NORMAL));
+	// BINORMAL = cross(TANGENT, NORMAL);
+	// uncomment it when you have tangent(UV) set
+	// ANISOTROPY = node0_bsdf_out7_anisotropy;
+}
+"
+
+[sub_resource id=2 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(1)
+
+[sub_resource id=3 type="Shader"]
+
+resource_name = "Shader Nodetree"
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+
+
+void node_bsdf_principled(vec4 color, float subsurface, vec4 subsurface_color,
+        float metallic, float specular, float roughness, float clearcoat,
+        float clearcoat_roughness, float anisotropy, float transmission,
+        float IOR, out vec3 albedo, out float sss_strength_out,
+        out float metallic_out, out float specular_out,
+        out float roughness_out, out float clearcoat_out,
+        out float clearcoat_gloss_out, out float anisotropy_out,
+        out float transmission_out, out float ior) {
+    metallic = clamp(metallic, 0.0, 1.0);
+    transmission = clamp(transmission, 0.0, 1.0);
+
+    subsurface = subsurface * (1.0 - metallic);
+
+    albedo = mix(color.rgb, subsurface_color.rgb, subsurface);
+    sss_strength_out = subsurface;
+    metallic_out = metallic;
+    specular_out = pow((IOR - 1.0)/(IOR + 1.0), 2)/0.08;
+    roughness_out = roughness;
+    clearcoat_out = clearcoat * (1.0 - transmission);
+    clearcoat_gloss_out = 1.0 - clearcoat_roughness;
+    anisotropy_out = clamp(anisotropy, 0.0, 1.0);
+    transmission_out = (1.0 - transmission) * (1.0 - metallic);
+    ior = IOR;
+}
+
+void vertex () {
+}
+
+void fragment () {
+	
+	// node: 'Principled BSDF'
+	// type: 'ShaderNodeBsdfPrincipled'
+	// input sockets handling
+	vec4 node0_in0_basecolor = vec4(0.8962264060974121, 0.6015712022781372,
+		0.39315590262413025, 1.0);
+	float node0_in1_subsurface = float(0.0);
+	vec3 node0_in2_subsurfaceradius = vec3(1.0, 0.20000000298023224,
+		0.10000000149011612);
+	vec4 node0_in3_subsurfacecolor = vec4(0.800000011920929, 0.800000011920929,
+		0.800000011920929, 1.0);
+	float node0_in4_metallic = float(0.0);
+	float node0_in5_specular = float(0.5);
+	float node0_in6_speculartint = float(0.0);
+	float node0_in7_roughness = float(1.0);
+	float node0_in8_anisotropic = float(0.0);
+	float node0_in9_anisotropicrotation = float(0.0);
+	float node0_in10_sheen = float(0.0);
+	float node0_in11_sheentint = float(0.5);
+	float node0_in12_clearcoat = float(0.0);
+	float node0_in13_clearcoatroughness = float(0.029999999329447746);
+	float node0_in14_ior = float(1.4500000476837158);
+	float node0_in15_transmission = float(0.0);
+	float node0_in16_transmissionroughness = float(0.0);
+	vec4 node0_in17_emission = vec4(0.0, 0.0, 0.0, 1.0);
+	float node0_in18_alpha = float(1.0);
+	vec3 node0_in19_normal = NORMAL;
+	vec3 node0_in20_clearcoatnormal = vec3(0.0, 0.0, 0.0);
+	vec3 node0_in21_tangent = TANGENT;
+	// output sockets definitions
+	vec3 node0_bsdf_out0_albedo;
+	float node0_bsdf_out1_sss_strength;
+	float node0_bsdf_out3_specular;
+	float node0_bsdf_out2_metallic;
+	float node0_bsdf_out4_roughness;
+	float node0_bsdf_out5_clearcoat;
+	float node0_bsdf_out6_clearcoat_gloss;
+	float node0_bsdf_out7_anisotropy;
+	float node0_bsdf_out8_transmission;
+	float node0_bsdf_out9_ior;
+	
+	node_bsdf_principled(node0_in0_basecolor, node0_in1_subsurface,
+		node0_in3_subsurfacecolor, node0_in4_metallic, node0_in5_specular,
+		node0_in7_roughness, node0_in12_clearcoat, node0_in13_clearcoatroughness,
+		node0_in8_anisotropic, node0_in15_transmission, node0_in14_ior,
+		node0_bsdf_out0_albedo, node0_bsdf_out1_sss_strength, node0_bsdf_out2_metallic,
+		node0_bsdf_out3_specular, node0_bsdf_out4_roughness, node0_bsdf_out5_clearcoat,
+		node0_bsdf_out6_clearcoat_gloss, node0_bsdf_out7_anisotropy,
+		node0_bsdf_out8_transmission, node0_bsdf_out9_ior);
+	
+	
+	ALBEDO = node0_bsdf_out0_albedo;
+	SSS_STRENGTH = node0_bsdf_out1_sss_strength;
+	SPECULAR = node0_bsdf_out3_specular;
+	METALLIC = node0_bsdf_out2_metallic;
+	ROUGHNESS = node0_bsdf_out4_roughness;
+	CLEARCOAT = node0_bsdf_out5_clearcoat;
+	CLEARCOAT_GLOSS = node0_bsdf_out6_clearcoat_gloss;
+	NORMAL = node0_in19_normal;
+	// uncomment it when you need it
+	// TRANSMISSION = vec3(1.0, 1.0, 1.0) * node0_bsdf_out8_transmission;
+	// uncomment it when you are modifing TANGENT
+	// TANGENT = normalize(cross(cross(node0_in21_tangent, NORMAL), NORMAL));
+	// BINORMAL = cross(TANGENT, NORMAL);
+	// uncomment it when you have tangent(UV) set
+	// ANISOTROPY = node0_bsdf_out7_anisotropy;
+}
+"
+
+[sub_resource id=4 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(3)
+
+[sub_resource id=5 type="Shader"]
+
+resource_name = "Shader Nodetree"
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+
+
+void node_bsdf_principled(vec4 color, float subsurface, vec4 subsurface_color,
+        float metallic, float specular, float roughness, float clearcoat,
+        float clearcoat_roughness, float anisotropy, float transmission,
+        float IOR, out vec3 albedo, out float sss_strength_out,
+        out float metallic_out, out float specular_out,
+        out float roughness_out, out float clearcoat_out,
+        out float clearcoat_gloss_out, out float anisotropy_out,
+        out float transmission_out, out float ior) {
+    metallic = clamp(metallic, 0.0, 1.0);
+    transmission = clamp(transmission, 0.0, 1.0);
+
+    subsurface = subsurface * (1.0 - metallic);
+
+    albedo = mix(color.rgb, subsurface_color.rgb, subsurface);
+    sss_strength_out = subsurface;
+    metallic_out = metallic;
+    specular_out = pow((IOR - 1.0)/(IOR + 1.0), 2)/0.08;
+    roughness_out = roughness;
+    clearcoat_out = clearcoat * (1.0 - transmission);
+    clearcoat_gloss_out = 1.0 - clearcoat_roughness;
+    anisotropy_out = clamp(anisotropy, 0.0, 1.0);
+    transmission_out = (1.0 - transmission) * (1.0 - metallic);
+    ior = IOR;
+}
+
+void vertex () {
+}
+
+void fragment () {
+	
+	// node: 'Principled BSDF'
+	// type: 'ShaderNodeBsdfPrincipled'
+	// input sockets handling
+	vec4 node0_in0_basecolor = vec4(0.3686274588108063, 0.46666666865348816,
+		0.46666666865348816, 1.0);
+	float node0_in1_subsurface = float(0.0);
+	vec3 node0_in2_subsurfaceradius = vec3(1.0, 0.20000000298023224,
+		0.10000000149011612);
+	vec4 node0_in3_subsurfacecolor = vec4(0.800000011920929, 0.800000011920929,
+		0.800000011920929, 1.0);
+	float node0_in4_metallic = float(0.0);
+	float node0_in5_specular = float(0.5);
+	float node0_in6_speculartint = float(0.0);
+	float node0_in7_roughness = float(1.0);
+	float node0_in8_anisotropic = float(0.0);
+	float node0_in9_anisotropicrotation = float(0.0);
+	float node0_in10_sheen = float(0.0);
+	float node0_in11_sheentint = float(0.5);
+	float node0_in12_clearcoat = float(0.0);
+	float node0_in13_clearcoatroughness = float(0.029999999329447746);
+	float node0_in14_ior = float(1.4500000476837158);
+	float node0_in15_transmission = float(0.0);
+	float node0_in16_transmissionroughness = float(0.0);
+	vec4 node0_in17_emission = vec4(0.0, 0.0, 0.0, 1.0);
+	float node0_in18_alpha = float(1.0);
+	vec3 node0_in19_normal = NORMAL;
+	vec3 node0_in20_clearcoatnormal = vec3(0.0, 0.0, 0.0);
+	vec3 node0_in21_tangent = TANGENT;
+	// output sockets definitions
+	vec3 node0_bsdf_out0_albedo;
+	float node0_bsdf_out1_sss_strength;
+	float node0_bsdf_out3_specular;
+	float node0_bsdf_out2_metallic;
+	float node0_bsdf_out4_roughness;
+	float node0_bsdf_out5_clearcoat;
+	float node0_bsdf_out6_clearcoat_gloss;
+	float node0_bsdf_out7_anisotropy;
+	float node0_bsdf_out8_transmission;
+	float node0_bsdf_out9_ior;
+	
+	node_bsdf_principled(node0_in0_basecolor, node0_in1_subsurface,
+		node0_in3_subsurfacecolor, node0_in4_metallic, node0_in5_specular,
+		node0_in7_roughness, node0_in12_clearcoat, node0_in13_clearcoatroughness,
+		node0_in8_anisotropic, node0_in15_transmission, node0_in14_ior,
+		node0_bsdf_out0_albedo, node0_bsdf_out1_sss_strength, node0_bsdf_out2_metallic,
+		node0_bsdf_out3_specular, node0_bsdf_out4_roughness, node0_bsdf_out5_clearcoat,
+		node0_bsdf_out6_clearcoat_gloss, node0_bsdf_out7_anisotropy,
+		node0_bsdf_out8_transmission, node0_bsdf_out9_ior);
+	
+	
+	ALBEDO = node0_bsdf_out0_albedo;
+	SSS_STRENGTH = node0_bsdf_out1_sss_strength;
+	SPECULAR = node0_bsdf_out3_specular;
+	METALLIC = node0_bsdf_out2_metallic;
+	ROUGHNESS = node0_bsdf_out4_roughness;
+	CLEARCOAT = node0_bsdf_out5_clearcoat;
+	CLEARCOAT_GLOSS = node0_bsdf_out6_clearcoat_gloss;
+	NORMAL = node0_in19_normal;
+	// uncomment it when you need it
+	// TRANSMISSION = vec3(1.0, 1.0, 1.0) * node0_bsdf_out8_transmission;
+	// uncomment it when you are modifing TANGENT
+	// TANGENT = normalize(cross(cross(node0_in21_tangent, NORMAL), NORMAL));
+	// BINORMAL = cross(TANGENT, NORMAL);
+	// uncomment it when you have tangent(UV) set
+	// ANISOTROPY = node0_bsdf_out7_anisotropy;
+}
+"
+
+[sub_resource id=6 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(5)
+
+[sub_resource id=7 type="Shader"]
+
+resource_name = "Shader Nodetree"
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_always, cull_back, diffuse_burley, specular_schlick_ggx;
+
+
+
+void node_bsdf_principled(vec4 color, float subsurface, vec4 subsurface_color,
+        float metallic, float specular, float roughness, float clearcoat,
+        float clearcoat_roughness, float anisotropy, float transmission,
+        float IOR, out vec3 albedo, out float sss_strength_out,
+        out float metallic_out, out float specular_out,
+        out float roughness_out, out float clearcoat_out,
+        out float clearcoat_gloss_out, out float anisotropy_out,
+        out float transmission_out, out float ior) {
+    metallic = clamp(metallic, 0.0, 1.0);
+    transmission = clamp(transmission, 0.0, 1.0);
+
+    subsurface = subsurface * (1.0 - metallic);
+
+    albedo = mix(color.rgb, subsurface_color.rgb, subsurface);
+    sss_strength_out = subsurface;
+    metallic_out = metallic;
+    specular_out = pow((IOR - 1.0)/(IOR + 1.0), 2)/0.08;
+    roughness_out = roughness;
+    clearcoat_out = clearcoat * (1.0 - transmission);
+    clearcoat_gloss_out = 1.0 - clearcoat_roughness;
+    anisotropy_out = clamp(anisotropy, 0.0, 1.0);
+    transmission_out = (1.0 - transmission) * (1.0 - metallic);
+    ior = IOR;
+}
+
+void vertex () {
+}
+
+void fragment () {
+	
+	// node: 'Principled BSDF'
+	// type: 'ShaderNodeBsdfPrincipled'
+	// input sockets handling
+	vec4 node0_in0_basecolor = vec4(0.30588236451148987, 0.38823530077934265,
+		0.38823530077934265, 1.0);
+	float node0_in1_subsurface = float(0.0);
+	vec3 node0_in2_subsurfaceradius = vec3(1.0, 0.20000000298023224,
+		0.10000000149011612);
+	vec4 node0_in3_subsurfacecolor = vec4(0.800000011920929, 0.800000011920929,
+		0.800000011920929, 1.0);
+	float node0_in4_metallic = float(0.0);
+	float node0_in5_specular = float(0.5);
+	float node0_in6_speculartint = float(0.0);
+	float node0_in7_roughness = float(1.0);
+	float node0_in8_anisotropic = float(0.0);
+	float node0_in9_anisotropicrotation = float(0.0);
+	float node0_in10_sheen = float(0.0);
+	float node0_in11_sheentint = float(0.5);
+	float node0_in12_clearcoat = float(0.0);
+	float node0_in13_clearcoatroughness = float(0.029999999329447746);
+	float node0_in14_ior = float(1.4500000476837158);
+	float node0_in15_transmission = float(0.0);
+	float node0_in16_transmissionroughness = float(0.0);
+	vec4 node0_in17_emission = vec4(0.0, 0.0, 0.0, 1.0);
+	float node0_in18_alpha = float(1.0);
+	vec3 node0_in19_normal = NORMAL;
+	vec3 node0_in20_clearcoatnormal = vec3(0.0, 0.0, 0.0);
+	vec3 node0_in21_tangent = TANGENT;
+	// output sockets definitions
+	vec3 node0_bsdf_out0_albedo;
+	float node0_bsdf_out1_sss_strength;
+	float node0_bsdf_out3_specular;
+	float node0_bsdf_out2_metallic;
+	float node0_bsdf_out4_roughness;
+	float node0_bsdf_out5_clearcoat;
+	float node0_bsdf_out6_clearcoat_gloss;
+	float node0_bsdf_out7_anisotropy;
+	float node0_bsdf_out8_transmission;
+	float node0_bsdf_out9_ior;
+	
+	node_bsdf_principled(node0_in0_basecolor, node0_in1_subsurface,
+		node0_in3_subsurfacecolor, node0_in4_metallic, node0_in5_specular,
+		node0_in7_roughness, node0_in12_clearcoat, node0_in13_clearcoatroughness,
+		node0_in8_anisotropic, node0_in15_transmission, node0_in14_ior,
+		node0_bsdf_out0_albedo, node0_bsdf_out1_sss_strength, node0_bsdf_out2_metallic,
+		node0_bsdf_out3_specular, node0_bsdf_out4_roughness, node0_bsdf_out5_clearcoat,
+		node0_bsdf_out6_clearcoat_gloss, node0_bsdf_out7_anisotropy,
+		node0_bsdf_out8_transmission, node0_bsdf_out9_ior);
+	
+	
+	ALBEDO = node0_bsdf_out0_albedo;
+	SSS_STRENGTH = node0_bsdf_out1_sss_strength;
+	SPECULAR = node0_bsdf_out3_specular;
+	METALLIC = node0_bsdf_out2_metallic;
+	ROUGHNESS = node0_bsdf_out4_roughness;
+	CLEARCOAT = node0_bsdf_out5_clearcoat;
+	CLEARCOAT_GLOSS = node0_bsdf_out6_clearcoat_gloss;
+	NORMAL = node0_in19_normal;
+	// uncomment it when you need it
+	// TRANSMISSION = vec3(1.0, 1.0, 1.0) * node0_bsdf_out8_transmission;
+	// uncomment it when you are modifing TANGENT
+	// TANGENT = normalize(cross(cross(node0_in21_tangent, NORMAL), NORMAL));
+	// BINORMAL = cross(TANGENT, NORMAL);
+	// uncomment it when you have tangent(UV) set
+	// ANISOTROPY = node0_bsdf_out7_anisotropy;
+}
+"
+
+[sub_resource id=8 type="ShaderMaterial"]
+
+resource_name = ""
+shader = SubResource(7)
+
+[sub_resource id=9 type="ArrayMesh"]
+
+resource_name = "Mesh televisionVintage"
+surfaces/0 = {
+	"material":SubResource(2),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.179495, 0.0173894, 0.107368, 0.125699, -0.108895, 0.107368, 0.179495, -0.108895, 0.107368, 0.125699, 0.0173894, 0.107368, 0.0395182, -0.102181, 0.0973679, -0.140643, -0.102422, 0.0973679, 0.0358373, -0.102422, 0.0973679, -0.144324, -0.102181, 0.0973679, -0.144324, -0.102181, 0.0973679, 0.0395182, -0.102181, 0.0973679, 0.043136, -0.101461, 0.0973679, -0.144324, -0.102181, 0.0973679, 0.043136, -0.101461, 0.0973679, -0.147942, -0.101461, 0.0973679, -0.147942, -0.101461, 0.0973679, 0.043136, -0.101461, 0.0973679, 0.046629, -0.100275, 0.0973679, -0.147942, -0.101461, 0.0973679, 0.046629, -0.100275, 0.0973679, -0.151435, -0.100275, 0.0973679, -0.151435, -0.100275, 0.0973679, 0.046629, -0.100275, 0.0973679, 0.0499373, -0.0986438, 0.0973679, -0.151435, -0.100275, 0.0973679, 0.0499373, -0.0986438, 0.0973679, -0.154743, -0.0986438, 0.0973679, -0.154743, -0.0986438, 0.0973679, 0.0499373, -0.0986438, 0.0973679, 0.0530044, -0.0965944, 0.0973679, 0.0530044, -0.0965944, 0.0973679, -0.15781, -0.0965944, 0.0973679, -0.15781, -0.0965944, 0.0973679, 0.0530044, -0.0965944, 0.0973679, 0.0557778, -0.0941623, 0.0973679, 0.0557778, -0.0941623, 0.0973679, -0.160584, -0.0941623, 0.0973679, -0.160584, -0.0941623, 0.0973679, 0.0557778, -0.0941623, 0.0973679, 0.0582099, -0.0913889, 0.0973679, -0.160584, -0.0941623, 0.0973679, 0.0582099, -0.0913889, 0.0973679, -0.163016, -0.0913889, 0.0973679, -0.163016, -0.0913889, 0.0973679, 0.0582099, -0.0913889, 0.0973679, 0.0602593, -0.0883218, 0.0973679, -0.163016, -0.0913889, 0.0973679, 0.0602593, -0.0883218, 0.0973679, -0.165065, -0.0883218, 0.0973679, -0.165065, -0.0883218, 0.0973679, 0.0602593, -0.0883218, 0.0973679, 0.0618908, -0.0850135, 0.0973679, 0.0618908, -0.0850135, 0.0973679, -0.166697, -0.0850135, 0.0973679, -0.166697, -0.0850135, 0.0973679, 0.0618908, -0.0850135, 0.0973679, 0.0630764, -0.0815205, 0.0973679, -0.166697, -0.0850135, 0.0973679, 0.0630764, -0.0815205, 0.0973679, -0.167882, -0.0815205, 0.0973679, -0.167882, -0.0815205, 0.0973679, 0.0630764, -0.0815205, 0.0973679, 0.0637961, -0.0779027, 0.0973679, 0.0637961, -0.0779027, 0.0973679, -0.168602, -0.0779027, 0.0973679, -0.168602, -0.0779027, 0.0973679, 0.0637961, -0.0779027, 0.0973679, 0.0640374, -0.0742218, 0.0973679, 0.0640374, -0.0742218, 0.0973679, -0.168843, -0.0742218, 0.0973679, 0.0640374, 0.0722028, 0.0973679, -0.168843, 0.0722028, 0.0973679, -0.168843, 0.0722028, 0.0973679, 0.0640374, 0.0722028, 0.0973679, 0.0637961, 0.0758837, 0.0973679, -0.168843, 0.0722028, 0.0973679, 0.0637961, 0.0758837, 0.0973679, -0.168602, 0.0758837, 0.0973679, -0.168602, 0.0758837, 0.0973679, 0.0637961, 0.0758837, 0.0973679, 0.0630764, 0.0795015, 0.0973679, -0.168602, 0.0758837, 0.0973679, 0.0630764, 0.0795015, 0.0973679, -0.167882, 0.0795015, 0.0973679, -0.167882, 0.0795015, 0.0973679, 0.0630764, 0.0795015, 0.0973679, 0.0618908, 0.0829945, 0.0973679, -0.167882, 0.0795015, 0.0973679, 0.0618908, 0.0829945, 0.0973679, -0.166697, 0.0829945, 0.0973679, -0.166697, 0.0829945, 0.0973679, 0.0618908, 0.0829945, 0.0973679, 0.0602593, 0.0863028, 0.0973679, -0.166697, 0.0829945, 0.0973679, 0.0602593, 0.0863028, 0.0973679, -0.165065, 0.0863028, 0.0973679, -0.165065, 0.0863028, 0.0973679, 0.0602593, 0.0863028, 0.0973679, 0.0582099, 0.0893699, 0.0973679, -0.165065, 0.0863028, 0.0973679, 0.0582099, 0.0893699, 0.0973679, -0.163016, 0.0893699, 0.0973679, -0.163016, 0.0893699, 0.0973679, 0.0582099, 0.0893699, 0.0973679, 0.0557778, 0.0921433, 0.0973679, -0.163016, 0.0893699, 0.0973679, 0.0557778, 0.0921433, 0.0973679, -0.160584, 0.0921433, 0.0973679, -0.160584, 0.0921433, 0.0973679, 0.0557778, 0.0921433, 0.0973679, 0.0530044, 0.0945754, 0.0973679, -0.160584, 0.0921433, 0.0973679, 0.0530044, 0.0945754, 0.0973679, -0.15781, 0.0945754, 0.0973679, -0.15781, 0.0945754, 0.0973679, 0.0530044, 0.0945754, 0.0973679, 0.0499373, 0.0966248, 0.0973679, -0.15781, 0.0945754, 0.0973679, 0.0499373, 0.0966248, 0.0973679, -0.154743, 0.0966248, 0.0973679, -0.154743, 0.0966248, 0.0973679, 0.0499373, 0.0966248, 0.0973679, 0.046629, 0.0982563, 0.0973679, -0.154743, 0.0966248, 0.0973679, 0.046629, 0.0982563, 0.0973679, -0.151435, 0.0982563, 0.0973679, -0.151435, 0.0982563, 0.0973679, 0.046629, 0.0982563, 0.0973679, 0.043136, 0.0994419, 0.0973679, -0.151435, 0.0982563, 0.0973679, 0.043136, 0.0994419, 0.0973679, -0.147942, 0.0994419, 0.0973679, -0.147942, 0.0994419, 0.0973679, 0.043136, 0.0994419, 0.0973679, 0.0395182, 0.100162, 0.0973679, -0.147942, 0.0994419, 0.0973679, 0.0395182, 0.100162, 0.0973679, -0.144324, 0.100162, 0.0973679, -0.144324, 0.100162, 0.0973679, 0.0395182, 0.100162, 0.0973679, 0.0358373, 0.100403, 0.0973679, -0.144324, 0.100162, 0.0973679, 0.0358373, 0.100403, 0.0973679, -0.140643, 0.100403, 0.0973679),
+		Vector3Array(0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.31991e-05, 1.0, 0.0, -1.31991e-05, 1.0, 0.0, -1.31991e-05, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.31027e-05, 1.0, 0.0, -1.31027e-05, 1.0, 0.0, -1.31027e-05, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 3.78278e-06, 1.0, 0.0, 3.78278e-06, 1.0, 0.0, 3.78278e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -6.66081e-06, 1.0, 0.0, -6.66081e-06, 1.0, 0.0, -6.66081e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -2.04344e-06, 1.0, 0.0, -2.04344e-06, 1.0, 0.0, -2.04344e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 3.05569e-06, 1.0, 0.0, 3.05569e-06, 1.0, 0.0, 3.05569e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -2.40203e-06, 1.0, 0.0, -2.40203e-06, 1.0, 0.0, -2.40203e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.67881e-06, 1.0, 0.0, 1.67881e-06, 1.0, 0.0, 1.67881e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -2.42395e-06, 1.0, 0.0, -2.42395e-06, 1.0, 0.0, -2.42395e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -7.83695e-07, 1.0, 0.0, -7.83695e-07, 1.0, 0.0, -7.83695e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 3.65746e-07, 1.0, 0.0, 3.65746e-07, 1.0, 0.0, 3.65746e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -3.64986e-07, 1.0, 0.0, -3.64986e-07, 1.0, 0.0, -3.64986e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 7.78842e-07, 1.0, 0.0, 7.78842e-07, 1.0, 0.0, 7.78842e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 2.39906e-06, 1.0, 0.0, 2.39906e-06, 1.0, 0.0, 2.39906e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.65485e-06, 1.0, 0.0, -1.65485e-06, 1.0, 0.0, -1.65485e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 2.35835e-06, 1.0, 0.0, 2.35835e-06, 1.0, 0.0, 2.35835e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -2.98847e-06, 1.0, 0.0, -2.98847e-06, 1.0, 0.0, -2.98847e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.99106e-06, 1.0, 0.0, 1.99106e-06, 1.0, 0.0, 1.99106e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -2.15565e-06, 1.0, 0.0, -2.15565e-06, 1.0, 0.0, -2.15565e-06, 1.0, 0.0, 8.88102e-06, 1.0, 0.0, 8.88102e-06, 1.0, 0.0, 8.88102e-06, 1.0, 0.0, -3.6605e-06, 1.0, 0.0, -3.6605e-06, 1.0, 0.0, -3.6605e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -3.22217e-06, 1.0, 0.0, -3.22217e-06, 1.0, 0.0, -3.22217e-06, 1.0, 0.0, 1.6443e-05, 1.0, 0.0, 1.6443e-05, 1.0, 0.0, 1.6443e-05, 1.0, 0.0, -1.43922e-05, 1.0, 0.0, -1.43922e-05, 1.0, 0.0, -1.43922e-05, 1.0, 0.0, 2.81574e-05, 1.0, 0.0, 2.81574e-05, 1.0, 0.0, 2.81574e-05, 1.0, 0.0, -7.48117e-05, 1.0, 0.0, -7.48117e-05, 1.0, 0.0, -7.48117e-05, 1.0, 0.0, 8.75031e-05, 1.0, 0.0, 8.75031e-05, 1.0, 0.0, 8.75031e-05, 1.0),
+		FloatArray(1.0, -1.65803e-07, 0.0, 1.0, 1.0, -5.36904e-08, 0.0, 1.0, 1.0, -1.23111e-08, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(15.0742, -5.03933, 12.9563, -0.0675008, 15.0742, -0.0675008, 12.9563, -5.03933, 9.56332, -0.331847, 2.47035, -0.322348, 9.4184, -0.322348, 2.32543, -0.331847, 2.32543, -0.331847, 9.56332, -0.331847, 9.70575, -0.360179, 2.32543, -0.331847, 9.70575, -0.360179, 2.183, -0.360179, 2.183, -0.360179, 9.70575, -0.360179, 9.84327, -0.40686, 2.183, -0.360179, 9.84327, -0.40686, 2.04548, -0.40686, 2.04548, -0.40686, 9.84327, -0.40686, 9.97352, -0.471092, 2.04548, -0.40686, 9.97352, -0.471092, 1.91523, -0.471092, 1.91523, -0.471092, 9.97352, -0.471092, 10.0943, -0.551775, 10.0943, -0.551775, 1.79448, -0.551775, 1.79448, -0.551775, 10.0943, -0.551775, 10.2035, -0.647529, 10.2035, -0.647529, 1.68529, -0.647529, 1.68529, -0.647529, 10.2035, -0.647529, 10.2992, -0.756716, 1.68529, -0.647529, 10.2992, -0.756716, 1.58954, -0.756716, 1.58954, -0.756716, 10.2992, -0.756716, 10.3799, -0.877467, 1.58954, -0.756716, 10.3799, -0.877467, 1.50886, -0.877467, 1.50886, -0.877467, 10.3799, -0.877467, 10.4441, -1.00772, 10.4441, -1.00772, 1.44463, -1.00772, 1.44463, -1.00772, 10.4441, -1.00772, 10.4908, -1.14523, 1.44463, -1.00772, 10.4908, -1.14523, 1.39794, -1.14523, 1.39794, -1.14523, 10.4908, -1.14523, 10.5191, -1.28767, 10.5191, -1.28767, 1.36961, -1.28767, 1.36961, -1.28767, 10.5191, -1.28767, 10.5286, -1.43258, 10.5286, -1.43258, 1.36011, -1.43258, 10.5286, -7.19734, 1.36011, -7.19734, 1.36011, -7.19734, 10.5286, -7.19734, 10.5191, -7.34225, 1.36011, -7.19734, 10.5191, -7.34225, 1.36961, -7.34225, 1.36961, -7.34225, 10.5191, -7.34225, 10.4908, -7.48469, 1.36961, -7.34225, 10.4908, -7.48469, 1.39794, -7.48469, 1.39794, -7.48469, 10.4908, -7.48469, 10.4441, -7.62221, 1.39794, -7.48469, 10.4441, -7.62221, 1.44463, -7.62221, 1.44463, -7.62221, 10.4441, -7.62221, 10.3799, -7.75245, 1.44463, -7.62221, 10.3799, -7.75245, 1.50886, -7.75245, 1.50886, -7.75245, 10.3799, -7.75245, 10.2992, -7.87321, 1.50886, -7.75245, 10.2992, -7.87321, 1.58954, -7.87321, 1.58954, -7.87321, 10.2992, -7.87321, 10.2035, -7.98239, 1.58954, -7.87321, 10.2035, -7.98239, 1.68529, -7.98239, 1.68529, -7.98239, 10.2035, -7.98239, 10.0943, -8.07815, 1.68529, -7.98239, 10.0943, -8.07815, 1.79448, -8.07815, 1.79448, -8.07815, 10.0943, -8.07815, 9.97352, -8.15883, 1.79448, -8.07815, 9.97352, -8.15883, 1.91523, -8.15883, 1.91523, -8.15883, 9.97352, -8.15883, 9.84327, -8.22306, 1.91523, -8.15883, 9.84327, -8.22306, 2.04548, -8.22306, 2.04548, -8.22306, 9.84327, -8.22306, 9.70575, -8.26974, 2.04548, -8.22306, 9.70575, -8.26974, 2.183, -8.26974, 2.183, -8.26974, 9.70575, -8.26974, 9.56332, -8.29807, 2.183, -8.26974, 9.56332, -8.29807, 2.32543, -8.29807, 2.32543, -8.29807, 9.56332, -8.29807, 9.4184, -8.30757, 2.32543, -8.29807, 9.4184, -8.30757, 2.47035, -8.30757),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 1, 3, 0, 4, 6, 5, 5, 7, 4, 8, 10, 9, 11, 13, 12, 14, 16, 15, 17, 19, 18, 20, 22, 21, 23, 25, 24, 26, 28, 27, 25, 30, 29, 31, 33, 32, 30, 35, 34, 36, 38, 37, 39, 41, 40, 42, 44, 43, 45, 47, 46, 48, 50, 49, 47, 52, 51, 53, 55, 54, 56, 58, 57, 59, 61, 60, 58, 63, 62, 64, 66, 65, 63, 68, 67, 68, 69, 67, 68, 70, 69, 71, 73, 72, 74, 76, 75, 77, 79, 78, 80, 82, 81, 83, 85, 84, 86, 88, 87, 89, 91, 90, 92, 94, 93, 95, 97, 96, 98, 100, 99, 101, 103, 102, 104, 106, 105, 107, 109, 108, 110, 112, 111, 113, 115, 114, 116, 118, 117, 119, 121, 120, 122, 124, 123, 125, 127, 126, 128, 130, 129, 131, 133, 132, 134, 136, 135, 137, 139, 138, 140, 142, 141)
+	],
+	"morph_arrays":[]
+}
+surfaces/1 = {
+	"material":SubResource(4),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.20661, -0.136009, -0.0826322, -0.20339, -0.136009, 0.117368, -0.20339, -0.136009, -0.0826322, -0.20339, -0.136009, 0.117368, 0.20661, -0.136009, -0.0826322, 0.0985842, -0.136009, 0.107368, 0.0985842, -0.136009, 0.107368, 0.20661, -0.136009, 0.107368, 0.0985842, -0.136009, 0.117368, 0.0985842, 0.13399, 0.117368, -0.20339, 0.13399, -0.0826322, -0.20339, 0.13399, 0.117368, 0.20661, 0.13399, -0.0826322, 0.20661, 0.13399, 0.117368, -0.20339, 0.13399, -0.0826322, -0.20339, -0.136009, 0.117368, -0.20339, 0.13399, 0.117368, -0.20339, -0.136009, -0.0826322, 0.20661, -0.136009, -0.0826322, 0.20661, 0.044504, 0.107368, 0.20661, -0.136009, 0.107368, 0.20661, 0.044504, 0.107368, 0.20661, -0.136009, -0.0826322, 0.20661, 0.0946878, 0.107368, 0.20661, 0.13399, -0.0826322, 0.20661, 0.0946878, 0.107368, 0.20661, -0.136009, -0.0826322, 0.20661, 0.13399, 0.117368, 0.20661, 0.0946878, 0.107368, 0.20661, 0.13399, -0.0826322, 0.20661, 0.0946878, 0.117368),
+		Vector3Array(0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 6.61746e-08, -1.0, 0.0, 6.61746e-08, -1.0, 0.0, 6.61746e-08, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -7.81398e-07, 1.0, 0.0, -7.81398e-07, 1.0, 0.0, -7.81398e-07, 1.0, 0.0, 1.45236e-07, 1.0, 0.0, 1.45236e-07, 1.0, 0.0, 1.45236e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0),
+		FloatArray(-1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, -6.61746e-08, -6.72334e-09, 1.0, -1.0, -6.61746e-08, -6.72334e-09, 1.0, -1.0, -6.61746e-08, -6.72334e-09, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, -7.81398e-07, 7.939e-08, -1.0, 1.0, -7.81398e-07, 7.939e-08, -1.0, 1.0, -7.81398e-07, 7.939e-08, -1.0, 1.0, 1.45236e-07, -2.95118e-08, -1.0, 1.0, 1.45236e-07, -2.95118e-08, -1.0, 1.0, 1.45236e-07, -2.95119e-08, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(-16.1417, -6.87402, 0.0, 1.0, 0.0, -6.87402, 0.0, 1.0, -16.1417, -6.87402, -11.8888, 0.606299, -11.8888, 0.606299, -16.1417, 0.606299, -11.8888, 1.0, 11.8888, 1.0, 0.0, -6.87402, 0.0, 1.0, 16.1417, -6.87402, 16.1417, 1.0, -7.87402, -9.62992, 0.0, 1.0, 0.0, -9.62992, -7.87402, 1.0, 7.87402, 1.0, 0.393701, -6.10683, 0.393701, 1.0, 0.393701, -6.10683, 7.87402, 1.0, 0.393701, -8.08257, 7.87402, -9.62992, 0.393701, -8.08257, 7.87402, 1.0, 0.0, -9.62992, 0.393701, -8.08257, 7.87402, -9.62992, 0.0, -8.08257),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 3, 5, 4, 6, 7, 0, 8, 6, 1, 9, 11, 10, 10, 12, 9, 12, 13, 9, 14, 16, 15, 15, 17, 14, 18, 20, 19, 21, 23, 22, 24, 26, 25, 27, 29, 28, 28, 30, 27)
+	],
+	"morph_arrays":[]
+}
+surfaces/2 = {
+	"material":SubResource(6),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.0985842, -0.136009, 0.117368, 0.0453855, -0.108638, 0.117368, -0.20339, -0.136009, 0.117368, 0.0492343, -0.107873, 0.117368, 0.0529502, -0.106611, 0.117368, 0.0564697, -0.104876, 0.117368, 0.0597326, -0.102696, 0.117368, 0.0597326, -0.102696, 0.117368, 0.0985842, -0.136009, 0.117368, 0.0626829, -0.100108, 0.117368, 0.0626829, -0.100108, 0.117368, 0.0985842, -0.136009, 0.117368, 0.0652703, -0.0971578, 0.117368, 0.0652703, -0.0971578, 0.117368, 0.0985842, -0.136009, 0.117368, 0.0674505, -0.093895, 0.117368, 0.0674505, -0.093895, 0.117368, 0.0985842, -0.136009, 0.117368, 0.0691861, -0.0903755, 0.117368, 0.0704475, -0.0866596, 0.117368, 0.0985842, 0.044504, 0.117368, -0.20339, -0.136009, 0.117368, 0.0453855, -0.108638, 0.117368, 0.0414697, -0.108895, 0.117368, 0.0704475, -0.0866596, 0.117368, 0.0985842, 0.044504, 0.117368, 0.0712131, -0.0828108, 0.117368, 0.0712131, -0.0828108, 0.117368, 0.0985842, 0.044504, 0.117368, 0.0714697, -0.078895, 0.117368, 0.0714697, -0.078895, 0.117368, 0.0985842, 0.044504, 0.117368, 0.0714697, 0.076876, 0.117368, 0.0985842, 0.0946878, 0.117368, 0.0714697, 0.076876, 0.117368, 0.0985842, 0.0946878, 0.117368, 0.0712131, 0.0807918, 0.117368, 0.0712131, 0.0807918, 0.117368, 0.0985842, 0.0946878, 0.117368, 0.0704475, 0.0846405, 0.117368, 0.0704475, 0.0846405, 0.117368, 0.0985842, 0.0946878, 0.117368, 0.0691861, 0.0883565, 0.117368, 0.0674505, 0.091876, 0.117368, 0.0674505, 0.091876, 0.117368, 0.0985842, 0.0946878, 0.117368, 0.0652703, 0.0951388, 0.117368, 0.0652703, 0.0951388, 0.117368, 0.0985842, 0.0946878, 0.117368, 0.0985842, 0.13399, 0.117368, 0.0626829, 0.0980892, 0.117368, 0.0626829, 0.0980892, 0.117368, 0.0985842, 0.13399, 0.117368, 0.0597326, 0.100677, 0.117368, 0.0597326, 0.100677, 0.117368, 0.0985842, 0.13399, 0.117368, 0.0564697, 0.102857, 0.117368, 0.0564697, 0.102857, 0.117368, 0.0985842, 0.13399, 0.117368, 0.0529502, 0.104592, 0.117368, 0.0529502, 0.104592, 0.117368, 0.0985842, 0.13399, 0.117368, 0.0492343, 0.105854, 0.117368, 0.0453855, 0.106619, 0.117368, 0.0414697, 0.106876, 0.117368, -0.146276, 0.106876, 0.117368, -0.20339, 0.13399, 0.117368, -0.146276, 0.106876, 0.117368, 0.0985842, 0.13399, 0.117368, -0.20339, 0.13399, 0.117368, -0.150191, 0.106619, 0.117368, -0.146276, 0.106876, 0.117368, -0.20339, 0.13399, 0.117368, -0.15404, 0.105854, 0.117368, -0.150191, 0.106619, 0.117368, -0.20339, 0.13399, 0.117368, -0.157756, 0.104592, 0.117368, -0.15404, 0.105854, 0.117368, -0.20339, 0.13399, 0.117368, -0.161276, 0.102857, 0.117368, -0.157756, 0.104592, 0.117368, -0.20339, 0.13399, 0.117368, -0.164538, 0.100677, 0.117368, -0.161276, 0.102857, 0.117368, -0.20339, 0.13399, 0.117368, -0.167489, 0.0980892, 0.117368, -0.164538, 0.100677, 0.117368, -0.20339, 0.13399, 0.117368, -0.170076, 0.0951388, 0.117368, -0.167489, 0.0980892, 0.117368, -0.20339, 0.13399, 0.117368, -0.172256, 0.091876, 0.117368, -0.170076, 0.0951388, 0.117368, -0.20339, 0.13399, 0.117368, -0.173992, 0.0883565, 0.117368, -0.172256, 0.091876, 0.117368, -0.20339, 0.13399, 0.117368, -0.175253, 0.0846405, 0.117368, -0.173992, 0.0883565, 0.117368, -0.20339, 0.13399, 0.117368, -0.176019, 0.0807918, 0.117368, -0.175253, 0.0846405, 0.117368, -0.20339, 0.13399, 0.117368, -0.176276, 0.076876, 0.117368, -0.176019, 0.0807918, 0.117368, -0.20339, 0.13399, 0.117368, -0.176276, -0.078895, 0.117368, -0.176276, 0.076876, 0.117368, -0.20339, 0.13399, 0.117368, -0.176019, -0.0828108, 0.117368, -0.176276, -0.078895, 0.117368, -0.20339, -0.136009, 0.117368, -0.176019, -0.0828108, 0.117368, -0.20339, 0.13399, 0.117368, -0.175253, -0.0866596, 0.117368, -0.175253, -0.0866596, 0.117368, -0.20339, -0.136009, 0.117368, -0.173992, -0.0903755, 0.117368, -0.173992, -0.0903755, 0.117368, -0.20339, -0.136009, 0.117368, -0.172256, -0.093895, 0.117368, -0.172256, -0.093895, 0.117368, -0.20339, -0.136009, 0.117368, -0.170076, -0.0971578, 0.117368, -0.167489, -0.100108, 0.117368, -0.164538, -0.102696, 0.117368, -0.161276, -0.104876, 0.117368, -0.157756, -0.106611, 0.117368, -0.15404, -0.107873, 0.117368, -0.150191, -0.108638, 0.117368, -0.150191, -0.108638, 0.117368, -0.20339, -0.136009, 0.117368, -0.146276, -0.108895, 0.117368, -0.146276, -0.108895, 0.117368, 0.0414697, -0.108895, 0.117368, 0.20661, 0.0946878, 0.107368, 0.0985842, 0.044504, 0.107368, 0.20661, 0.044504, 0.107368, 0.0985842, 0.0946878, 0.107368, 0.0985842, 0.044504, 0.107368, 0.0985842, 0.0946878, 0.117368, 0.0985842, 0.044504, 0.117368, 0.0985842, 0.0946878, 0.107368, 0.20661, 0.0946878, 0.107368, 0.0985842, 0.0946878, 0.117368, 0.0985842, 0.0946878, 0.107368, 0.20661, 0.0946878, 0.117368),
+		Vector3Array(0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -2.40775e-06, 1.0, 0.0, -2.40775e-06, 1.0, 0.0, -2.40775e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -6.7168e-06, 1.0, 0.0, -6.7168e-06, 1.0, 0.0, -6.7168e-06, 1.0, 0.0, 5.91436e-05, 1.0, 0.0, 5.91436e-05, 1.0, 0.0, 5.91436e-05, 1.0, 0.0, -6.24984e-06, 1.0, 0.0, -6.24984e-06, 1.0, 0.0, -6.24984e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 4.20479e-06, 1.0, 0.0, 4.20479e-06, 1.0, 0.0, 4.20479e-06, 1.0, 0.0, -4.01485e-06, 1.0, 0.0, -4.01485e-06, 1.0, 0.0, -4.01485e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 4.33544e-06, 1.0, 0.0, 4.33544e-06, 1.0, 0.0, 4.33544e-06, 1.0, 0.0, -2.39088e-06, 1.0, 0.0, -2.39088e-06, 1.0, 0.0, -2.39088e-06, 1.0, 0.0, 1.04688e-06, 1.0, 0.0, 1.04688e-06, 1.0, 0.0, 1.04688e-06, 1.0, 0.0, -9.55942e-07, 1.0, 0.0, -9.55942e-07, 1.0, 0.0, -9.55942e-07, 1.0, 0.0, 9.02909e-07, 1.0, 0.0, 9.02909e-07, 1.0, 0.0, 9.02909e-07, 1.0, 0.0, -2.92775e-07, 1.0, 0.0, -2.92775e-07, 1.0, 0.0, -2.92775e-07, 1.0, 0.0, -8.78334e-07, 1.0, 0.0, -8.78334e-07, 1.0, 0.0, -8.78334e-07, 1.0, 0.0, 6.0194e-07, 1.0, 0.0, 6.0194e-07, 1.0, 0.0, 6.0194e-07, 1.0, 0.0, 2.23053e-06, 1.0, 0.0, 2.23053e-06, 1.0, 0.0, 2.23053e-06, 1.0, 0.0, -1.22134e-06, 1.0, 0.0, -1.22134e-06, 1.0, 0.0, -1.22134e-06, 1.0, 0.0, -1.59395e-06, 1.0, 0.0, -1.59395e-06, 1.0, 0.0, -1.59395e-06, 1.0, 0.0, 1.14408e-06, 1.0, 0.0, 1.14408e-06, 1.0, 0.0, 1.14408e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -2.68237e-06, 1.0, 0.0, -2.68237e-06, 1.0, 0.0, -2.68237e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -2.54917e-06, 1.0, 0.0, -2.54917e-06, 1.0, 0.0, -2.54917e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, -7.70754e-06, 1.0, 0.0, -7.70754e-06, 1.0, 0.0, -7.70754e-06, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0),
+		FloatArray(1.0, 3.85339e-08, 0.0, 1.0, 1.0, -1.03164e-07, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -2.16696e-07, 0.0, 1.0, 1.0, 2.78461e-07, 0.0, 1.0, 1.0, -2.5396e-08, 0.0, 1.0, 1.0, 5.80989e-07, 0.0, 1.0, 1.0, 6.2467e-07, 0.0, 1.0, 1.0, 6.2467e-07, 0.0, 1.0, 1.0, 6.2467e-07, 0.0, 1.0, 1.0, -1.24933e-06, 0.0, 1.0, 1.0, -1.24933e-06, 0.0, 1.0, 1.0, -1.24933e-06, 0.0, 1.0, 1.0, 9.7851e-07, 2.356e-12, 1.0, 1.0, 9.7851e-07, 2.356e-12, 1.0, 1.0, 9.7851e-07, 2.356e-12, 1.0, 1.0, -1.16549e-06, 0.0, 1.0, 1.0, -8.75753e-08, 0.0, 1.0, 1.0, -1.24087e-07, 0.0, 1.0, 1.0, 9.20147e-08, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.09187e-06, 7.33391e-12, 1.0, 1.0, 1.09187e-06, 7.33391e-12, 1.0, 1.0, 1.09187e-06, 7.33391e-12, 1.0, 1.0, -1.20159e-05, 7.10663e-10, 1.0, 0.0, 0.0, 0.0, -1.0, 1.0, -1.20159e-05, 7.10663e-10, 1.0, 1.0, -1.90497e-06, -1.19057e-11, 1.0, 1.0, -1.90497e-06, -1.19057e-11, 1.0, 1.0, -1.90497e-06, -1.19057e-11, 1.0, 1.0, -3.58447e-07, 0.0, 1.0, 1.0, -3.47597e-07, 0.0, 1.0, 1.0, -3.27674e-07, 0.0, 1.0, 1.0, -3.12925e-07, 0.0, 1.0, 1.0, -5.34008e-08, 2.24539e-13, 1.0, 1.0, -5.34008e-08, 2.24539e-13, 1.0, 1.0, -5.34008e-08, 2.24539e-13, 1.0, 1.0, 3.5692e-07, 1.43298e-12, 1.0, 1.0, 3.5692e-07, 1.43298e-12, 1.0, 1.0, 3.5692e-07, 1.43298e-12, 1.0, 1.0, -1.51344e-07, 0.0, 1.0, 1.0, -1.53113e-07, 0.0, 1.0, 1.0, -1.53379e-07, 0.0, 1.0, 1.0, -1.55009e-07, 0.0, 1.0, 1.0, -9.60809e-08, 0.0, 1.0, 1.0, -9.60809e-08, 0.0, 1.0, 1.0, -9.60809e-08, 0.0, 1.0, 1.0, -4.41806e-07, 0.0, 1.0, 1.0, -4.72207e-08, 0.0, 1.0, 1.0, -4.98056e-08, 0.0, 1.0, 1.0, -6.54413e-07, 0.0, 1.0, 1.0, 1.1006e-06, 0.0, 1.0, 1.0, 1.1006e-06, 0.0, 1.0, 1.0, 1.1006e-06, 0.0, 1.0, 1.0, 5.80991e-07, 0.0, 1.0, 1.0, 5.80991e-07, 0.0, 1.0, 1.0, 5.80991e-07, 0.0, 1.0, 1.0, -3.88496e-07, 0.0, 1.0, 1.0, -3.88496e-07, 0.0, 1.0, 1.0, -3.88496e-07, 0.0, 1.0, 1.0, -3.7227e-07, 0.0, 1.0, 1.0, -5.67341e-08, 0.0, 1.0, 1.0, 6.89723e-08, 0.0, 1.0, 1.0, -3.43294e-07, 0.0, 1.0, 1.0, -7.76301e-08, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 7.83076e-07, -3.39498e-12, 1.0, 1.0, 7.83076e-07, -3.39498e-12, 1.0, 1.0, 7.83076e-07, -3.39498e-12, 1.0, 1.0, -3.23886e-07, -7.74372e-13, 1.0, 1.0, -3.23886e-07, -7.74372e-13, 1.0, 1.0, -3.23886e-07, -7.74372e-13, 1.0, 1.0, 5.67269e-07, -5.93864e-13, 1.0, 1.0, 5.67269e-07, -5.93864e-13, 1.0, 1.0, 5.67269e-07, -5.93864e-13, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -4.89256e-07, 4.41754e-13, 1.0, 1.0, -4.89256e-07, 4.41754e-13, 1.0, 1.0, -4.89256e-07, 4.41754e-13, 1.0, 1.0, -9.51871e-07, -2.78684e-13, 1.0, 1.0, -9.51871e-07, -2.78684e-13, 1.0, 1.0, -9.51871e-07, -2.78684e-13, 1.0, 1.0, 4.75938e-07, 4.18033e-13, 1.0, 1.0, 4.75938e-07, 4.18033e-13, 1.0, 1.0, 4.75938e-07, 4.18033e-13, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -2.59108e-06, -4.13005e-12, 1.0, 1.0, -2.59108e-06, -4.13005e-12, 1.0, 1.0, -2.59108e-06, -4.13005e-12, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 8.96118e-07, 0.0, 1.0, 1.0, 8.96118e-07, 0.0, 1.0, 1.0, 8.96118e-07, 0.0, 1.0, 1.0, -5.87497e-05, -1.57588e-10, 1.0, 1.0, -5.87497e-05, -1.57588e-10, 1.0, 1.0, -5.87497e-05, -1.57588e-10, 1.0, 1.0, 1.47557e-07, 0.0, 1.0, 1.0, 6.04727e-08, 0.0, 1.0, 1.0, 2.0486e-07, 0.0, 1.0, 1.0, -4.85829e-07, 0.0, 1.0, 1.0, -3.54541e-07, 0.0, 1.0, 1.0, -3.54541e-07, 0.0, 1.0, 1.0, -3.54541e-07, 0.0, 1.0, 1.0, 1.10074e-06, 2.80599e-12, 1.0, 1.0, 1.10074e-06, 2.80599e-12, 1.0, 1.0, 1.10074e-06, 2.80599e-12, 1.0, 1.0, -9.78507e-07, 0.0, 1.0, 1.0, -1.10372e-07, 0.0, 1.0, 1.0, -5.83746e-09, 0.0, 1.0, 1.0, 3.12334e-07, 0.0, 1.0, 1.0, -6.00059e-07, 0.0, 1.0, 1.0, 2.53965e-08, 0.0, 1.0, 1.0, -2.90606e-07, 0.0, 1.0, 1.0, 2.19622e-07, 0.0, 1.0, 1.0, 5.06072e-07, 0.0, 1.0, 1.0, -5.38368e-07, -4.1495e-12, 1.0, 1.0, -5.38368e-07, -4.1495e-12, 1.0, 1.0, -5.38368e-07, -4.1495e-12, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -8.61269e-09, 0.0, 1.0, 1.0, -8.59132e-08, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(11.8888, 1.0, 9.79431, -0.0776054, 0.0, 1.0, 9.94584, -0.107746, 10.0921, -0.157407, 10.2307, -0.225739, 10.3592, -0.311572, 10.3592, -0.311572, 11.8888, 1.0, 10.4753, -0.413438, 10.4753, -0.413438, 11.8888, 1.0, 10.5772, -0.529594, 10.5772, -0.529594, 11.8888, 1.0, 10.663, -0.658052, 10.663, -0.658052, 11.8888, 1.0, 10.7313, -0.796615, 10.781, -0.942911, 11.8888, -6.10683, 0.0, 1.0, 9.79431, -0.0776054, 9.64015, -0.0675008, 10.781, -0.942911, 11.8888, -6.10683, 10.8111, -1.09444, 10.8111, -1.09444, 11.8888, -6.10683, 10.8213, -1.2486, 10.8213, -1.2486, 11.8888, -6.10683, 10.8213, -7.38132, 11.8888, -8.08257, 10.8213, -7.38132, 11.8888, -8.08257, 10.8111, -7.53548, 10.8111, -7.53548, 11.8888, -8.08257, 10.781, -7.68701, 10.781, -7.68701, 11.8888, -8.08257, 10.7313, -7.83331, 10.663, -7.97187, 10.663, -7.97187, 11.8888, -8.08257, 10.5772, -8.10033, 10.5772, -8.10033, 11.8888, -8.08257, 11.8888, -9.62992, 10.4753, -8.21648, 10.4753, -8.21648, 11.8888, -9.62992, 10.3592, -8.31835, 10.3592, -8.31835, 11.8888, -9.62992, 10.2307, -8.40418, 10.2307, -8.40418, 11.8888, -9.62992, 10.0921, -8.47251, 10.0921, -8.47251, 11.8888, -9.62992, 9.94584, -8.52217, 9.79431, -8.55232, 9.64015, -8.56242, 2.2486, -8.56242, 0.0, -9.62992, 2.2486, -8.56242, 11.8888, -9.62992, 0.0, -9.62992, 2.09444, -8.55232, 2.2486, -8.56242, 0.0, -9.62992, 1.94291, -8.52217, 2.09444, -8.55232, 0.0, -9.62992, 1.79661, -8.47251, 1.94291, -8.52217, 0.0, -9.62992, 1.65805, -8.40418, 1.79661, -8.47251, 0.0, -9.62992, 1.52959, -8.31835, 1.65805, -8.40418, 0.0, -9.62992, 1.41344, -8.21648, 1.52959, -8.31835, 0.0, -9.62992, 1.31157, -8.10033, 1.41344, -8.21648, 0.0, -9.62992, 1.22574, -7.97187, 1.31157, -8.10033, 0.0, -9.62992, 1.15741, -7.83331, 1.22574, -7.97187, 0.0, -9.62992, 1.10775, -7.68701, 1.15741, -7.83331, 0.0, -9.62992, 1.07761, -7.53548, 1.10775, -7.68701, 0.0, -9.62992, 1.0675, -7.38132, 1.07761, -7.53548, 0.0, -9.62992, 1.0675, -1.2486, 1.0675, -7.38132, 0.0, -9.62992, 1.07761, -1.09444, 1.0675, -1.2486, 0.0, 1.0, 1.07761, -1.09444, 0.0, -9.62992, 1.10775, -0.942911, 1.10775, -0.942911, 0.0, 1.0, 1.15741, -0.796615, 1.15741, -0.796615, 0.0, 1.0, 1.22574, -0.658052, 1.22574, -0.658052, 0.0, 1.0, 1.31157, -0.529594, 1.41344, -0.413438, 1.52959, -0.311572, 1.65805, -0.225739, 1.79661, -0.157407, 1.94291, -0.107746, 2.09444, -0.0776054, 2.09444, -0.0776054, 0.0, 1.0, 2.2486, -0.0675008, 2.2486, -0.0675008, 9.64015, -0.0675008, 16.1417, -8.08257, 11.8888, -6.10683, 16.1417, -6.10683, 11.8888, -8.08257, 0.393701, -6.10683, 0.0, -8.08257, 0.0, -6.10683, 0.393701, -8.08257, -16.1417, 0.606299, -11.8888, 1.0, -11.8888, 0.606299, -16.1417, 1.0),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 1, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6, 0, 7, 9, 8, 10, 12, 11, 13, 15, 14, 16, 18, 17, 18, 19, 17, 19, 20, 17, 21, 23, 22, 24, 26, 25, 27, 29, 28, 30, 32, 31, 32, 33, 31, 34, 36, 35, 37, 39, 38, 40, 42, 41, 42, 43, 41, 44, 46, 45, 47, 49, 48, 47, 50, 49, 51, 53, 52, 54, 56, 55, 57, 59, 58, 60, 62, 61, 62, 63, 61, 63, 64, 61, 64, 65, 61, 66, 68, 67, 69, 71, 70, 72, 74, 73, 75, 77, 76, 78, 80, 79, 81, 83, 82, 84, 86, 85, 87, 89, 88, 90, 92, 91, 93, 95, 94, 96, 98, 97, 99, 101, 100, 102, 104, 103, 105, 107, 106, 108, 110, 109, 111, 113, 112, 112, 114, 111, 115, 117, 116, 118, 120, 119, 121, 123, 122, 123, 124, 122, 124, 125, 122, 125, 126, 122, 126, 127, 122, 127, 128, 122, 128, 129, 122, 130, 132, 131, 133, 134, 2, 135, 137, 136, 136, 138, 135, 139, 141, 140, 140, 142, 139, 143, 145, 144, 144, 146, 143)
+	],
+	"morph_arrays":[]
+}
+surfaces/3 = {
+	"material":SubResource(8),
+	"primitive":4,
+	"arrays":[
+		Vector3Array(0.20661, -0.136009, 0.107368, 0.179495, -0.108895, 0.107368, 0.0985842, -0.136009, 0.107368, 0.20661, 0.044504, 0.107368, 0.179495, 0.0173894, 0.107368, 0.125699, 0.0173894, 0.107368, 0.125699, -0.108895, 0.107368, 0.0985842, 0.044504, 0.107368, 0.0985842, -0.136009, 0.107368, 0.0985842, 0.044504, 0.117368, 0.0985842, -0.136009, 0.117368, 0.0985842, 0.044504, 0.107368, 0.20661, 0.13399, 0.117368, 0.0985842, 0.0946878, 0.117368, 0.20661, 0.0946878, 0.117368, 0.0985842, 0.13399, 0.117368, 0.0530044, 0.0945754, 0.0973679, 0.0564697, 0.102857, 0.117368, 0.0499373, 0.0966248, 0.0973679, 0.0597326, 0.100677, 0.117368, -0.147942, 0.0994419, 0.0973679, -0.150191, 0.106619, 0.117368, -0.15404, 0.105854, 0.117368, -0.144324, 0.100162, 0.0973679, -0.151435, 0.0982563, 0.0973679, -0.15404, 0.105854, 0.117368, -0.157756, 0.104592, 0.117368, -0.147942, 0.0994419, 0.0973679, -0.15781, 0.0945754, 0.0973679, -0.161276, 0.102857, 0.117368, -0.164538, 0.100677, 0.117368, -0.154743, 0.0966248, 0.0973679, 0.046629, 0.0982563, 0.0973679, 0.0492343, 0.105854, 0.117368, 0.043136, 0.0994419, 0.0973679, 0.0529502, 0.104592, 0.117368, 0.0395182, 0.100162, 0.0973679, 0.0414697, 0.106876, 0.117368, 0.0358373, 0.100403, 0.0973679, 0.0453855, 0.106619, 0.117368, -0.140643, 0.100403, 0.0973679, 0.0414697, 0.106876, 0.117368, -0.146276, 0.106876, 0.117368, 0.0414697, 0.106876, 0.117368, -0.140643, 0.100403, 0.0973679, 0.0358373, 0.100403, 0.0973679, -0.154743, 0.0966248, 0.0973679, -0.157756, 0.104592, 0.117368, -0.161276, 0.102857, 0.117368, -0.151435, 0.0982563, 0.0973679, 0.0582099, 0.0893699, 0.0973679, 0.0674505, 0.091876, 0.117368, 0.0652703, 0.0951388, 0.117368, 0.0602593, 0.0863028, 0.0973679, 0.0602593, 0.0863028, 0.0973679, 0.0691861, 0.0883565, 0.117368, 0.0674505, 0.091876, 0.117368, 0.0618908, 0.0829945, 0.0973679, 0.0557778, 0.0921433, 0.0973679, 0.0652703, 0.0951388, 0.117368, 0.0626829, 0.0980892, 0.117368, 0.0582099, 0.0893699, 0.0973679, 0.0557778, 0.0921433, 0.0973679, 0.0597326, 0.100677, 0.117368, 0.0530044, 0.0945754, 0.0973679, 0.0626829, 0.0980892, 0.117368, 0.0499373, 0.0966248, 0.0973679, 0.0529502, 0.104592, 0.117368, 0.046629, 0.0982563, 0.0973679, 0.0564697, 0.102857, 0.117368, 0.043136, 0.0994419, 0.0973679, 0.0453855, 0.106619, 0.117368, 0.0395182, 0.100162, 0.0973679, 0.0492343, 0.105854, 0.117368, -0.144324, 0.100162, 0.0973679, -0.146276, 0.106876, 0.117368, -0.150191, 0.106619, 0.117368, -0.140643, 0.100403, 0.0973679, -0.160584, 0.0921433, 0.0973679, -0.164538, 0.100677, 0.117368, -0.167489, 0.0980892, 0.117368, -0.15781, 0.0945754, 0.0973679, -0.166697, 0.0829945, 0.0973679, -0.172256, 0.091876, 0.117368, -0.173992, 0.0883565, 0.117368, -0.165065, 0.0863028, 0.0973679, -0.165065, 0.0863028, 0.0973679, -0.170076, 0.0951388, 0.117368, -0.172256, 0.091876, 0.117368, -0.163016, 0.0893699, 0.0973679, -0.166697, -0.0850135, 0.0973679, -0.175253, -0.0866596, 0.117368, -0.173992, -0.0903755, 0.117368, -0.167882, -0.0815205, 0.0973679, -0.163016, 0.0893699, 0.0973679, -0.167489, 0.0980892, 0.117368, -0.170076, 0.0951388, 0.117368, -0.160584, 0.0921433, 0.0973679, -0.168843, 0.0722028, 0.0973679, -0.176019, 0.0807918, 0.117368, -0.176276, 0.076876, 0.117368, -0.168602, 0.0758837, 0.0973679, -0.167882, -0.0815205, 0.0973679, -0.176019, -0.0828108, 0.117368, -0.175253, -0.0866596, 0.117368, -0.168602, -0.0779027, 0.0973679, -0.168602, 0.0758837, 0.0973679, -0.175253, 0.0846405, 0.117368, -0.176019, 0.0807918, 0.117368, -0.167882, 0.0795015, 0.0973679, -0.168843, -0.0742218, 0.0973679, -0.176276, 0.076876, 0.117368, -0.176276, -0.078895, 0.117368, -0.176276, 0.076876, 0.117368, -0.168843, -0.0742218, 0.0973679, -0.168843, 0.0722028, 0.0973679, -0.168602, -0.0779027, 0.0973679, -0.176276, -0.078895, 0.117368, -0.176019, -0.0828108, 0.117368, -0.168843, -0.0742218, 0.0973679, -0.167882, 0.0795015, 0.0973679, -0.173992, 0.0883565, 0.117368, -0.175253, 0.0846405, 0.117368, -0.166697, 0.0829945, 0.0973679, -0.165065, -0.0883218, 0.0973679, -0.173992, -0.0903755, 0.117368, -0.172256, -0.093895, 0.117368, -0.166697, -0.0850135, 0.0973679, -0.164538, -0.102696, 0.117368, -0.160584, -0.0941623, 0.0973679, -0.167489, -0.100108, 0.117368, -0.15781, -0.0965944, 0.0973679, -0.15404, -0.107873, 0.117368, -0.151435, -0.100275, 0.0973679, -0.157756, -0.106611, 0.117368, -0.147942, -0.101461, 0.0973679, -0.163016, -0.0913889, 0.0973679, -0.172256, -0.093895, 0.117368, -0.170076, -0.0971578, 0.117368, -0.165065, -0.0883218, 0.0973679, -0.161276, -0.104876, 0.117368, -0.15781, -0.0965944, 0.0973679, -0.164538, -0.102696, 0.117368, -0.154743, -0.0986438, 0.0973679, -0.160584, -0.0941623, 0.0973679, -0.170076, -0.0971578, 0.117368, -0.167489, -0.100108, 0.117368, -0.163016, -0.0913889, 0.0973679, -0.157756, -0.106611, 0.117368, -0.154743, -0.0986438, 0.0973679, -0.161276, -0.104876, 0.117368, -0.151435, -0.100275, 0.0973679, -0.150191, -0.108638, 0.117368, -0.147942, -0.101461, 0.0973679, -0.15404, -0.107873, 0.117368, -0.144324, -0.102181, 0.0973679, -0.146276, -0.108895, 0.117368, -0.144324, -0.102181, 0.0973679, -0.150191, -0.108638, 0.117368, -0.140643, -0.102422, 0.0973679, 0.0414697, -0.108895, 0.117368, -0.140643, -0.102422, 0.0973679, -0.146276, -0.108895, 0.117368, -0.140643, -0.102422, 0.0973679, 0.0414697, -0.108895, 0.117368, 0.0358373, -0.102422, 0.0973679, 0.0414697, -0.108895, 0.117368, 0.0395182, -0.102181, 0.0973679, 0.0358373, -0.102422, 0.0973679, 0.0453855, -0.108638, 0.117368, 0.0529502, -0.106611, 0.117368, 0.0499373, -0.0986438, 0.0973679, 0.046629, -0.100275, 0.0973679, 0.0564697, -0.104876, 0.117368, 0.0582099, -0.0913889, 0.0973679, 0.0626829, -0.100108, 0.117368, 0.0652703, -0.0971578, 0.117368, 0.0557778, -0.0941623, 0.0973679, 0.0618908, -0.0850135, 0.0973679, 0.0674505, -0.093895, 0.117368, 0.0691861, -0.0903755, 0.117368, 0.0602593, -0.0883218, 0.0973679, 0.0630764, -0.0815205, 0.0973679, 0.0691861, -0.0903755, 0.117368, 0.0704475, -0.0866596, 0.117368, 0.0618908, -0.0850135, 0.0973679, 0.0637961, 0.0758837, 0.0973679, 0.0714697, 0.076876, 0.117368, 0.0712131, 0.0807918, 0.117368, 0.0640374, 0.0722028, 0.0973679, 0.0597326, -0.102696, 0.117368, 0.0557778, -0.0941623, 0.0973679, 0.0530044, -0.0965944, 0.0973679, 0.0626829, -0.100108, 0.117368, 0.0640374, -0.0742218, 0.0973679, 0.0712131, -0.0828108, 0.117368, 0.0714697, -0.078895, 0.117368, 0.0637961, -0.0779027, 0.0973679, 0.0564697, -0.104876, 0.117368, 0.0530044, -0.0965944, 0.0973679, 0.0499373, -0.0986438, 0.0973679, 0.0597326, -0.102696, 0.117368, 0.0618908, 0.0829945, 0.0973679, 0.0704475, 0.0846405, 0.117368, 0.0691861, 0.0883565, 0.117368, 0.0630764, 0.0795015, 0.0973679, 0.0637961, -0.0779027, 0.0973679, 0.0704475, -0.0866596, 0.117368, 0.0712131, -0.0828108, 0.117368, 0.0630764, -0.0815205, 0.0973679, 0.0602593, -0.0883218, 0.0973679, 0.0652703, -0.0971578, 0.117368, 0.0674505, -0.093895, 0.117368, 0.0582099, -0.0913889, 0.0973679, 0.0640374, 0.0722028, 0.0973679, 0.0714697, -0.078895, 0.117368, 0.0714697, 0.076876, 0.117368, 0.0714697, -0.078895, 0.117368, 0.0640374, 0.0722028, 0.0973679, 0.0640374, -0.0742218, 0.0973679, 0.0492343, -0.107873, 0.117368, 0.046629, -0.100275, 0.0973679, 0.043136, -0.101461, 0.0973679, 0.0529502, -0.106611, 0.117368, 0.0630764, 0.0795015, 0.0973679, 0.0712131, 0.0807918, 0.117368, 0.0704475, 0.0846405, 0.117368, 0.0637961, 0.0758837, 0.0973679, 0.0453855, -0.108638, 0.117368, 0.043136, -0.101461, 0.0973679, 0.0395182, -0.102181, 0.0973679, 0.0492343, -0.107873, 0.117368, -0.20339, -0.136009, -0.0826322, -0.147007, -0.0979338, -0.0826322, 0.20661, -0.136009, -0.0826322, -0.20339, 0.13399, -0.0826322, -0.147007, 0.0959148, -0.0826322, -0.147007, 0.0959148, -0.0826322, -0.20339, 0.13399, -0.0826322, 0.150226, 0.0959148, -0.0826322, 0.150226, -0.0979338, -0.0826322, 0.20661, 0.13399, -0.0826322, 0.20661, 0.13399, -0.0826322, 0.150226, -0.0979338, -0.0826322, 0.150226, 0.0959148, -0.0826322, 0.20661, 0.13399, -0.0826322, 0.150226, 0.0959148, -0.0826322, -0.20339, 0.13399, -0.0826322, -0.127686, -0.0979338, -0.132632, -0.0476281, -0.0278755, -0.132632, 0.130906, -0.0979338, -0.132632, -0.0476281, -0.0278755, -0.132632, -0.127686, -0.0979338, -0.132632, -0.127686, 0.0959148, -0.132632, -0.0476281, -0.0278755, -0.132632, -0.127686, 0.0959148, -0.132632, -0.0476281, 0.0959148, -0.132632, 0.0508479, -0.0278755, -0.132632, 0.130906, -0.0979338, -0.132632, -0.0476281, -0.0278755, -0.132632, 0.130906, -0.0979338, -0.132632, 0.0508479, -0.0278755, -0.132632, 0.130906, 0.0959148, -0.132632, 0.130906, 0.0959148, -0.132632, 0.0508479, -0.0278755, -0.132632, 0.0508479, 0.0959148, -0.132632, 0.150226, 0.0959148, -0.0826322, -0.127686, 0.0959148, -0.132632, -0.147007, 0.0959148, -0.0826322, -0.127686, 0.0959148, -0.132632, 0.150226, 0.0959148, -0.0826322, -0.0476281, 0.0959148, -0.132632, -0.0476281, 0.0959148, -0.132632, 0.150226, 0.0959148, -0.0826322, -0.0476281, 0.0959148, -0.152632, -0.0476281, 0.0959148, -0.152632, 0.150226, 0.0959148, -0.0826322, 0.0508479, 0.0959148, -0.132632, 0.0508479, 0.0959148, -0.132632, 0.130906, 0.0959148, -0.132632, 0.0508479, 0.0959148, -0.152632, -0.0476281, 0.0959148, -0.152632, 0.0508479, 0.0959148, -0.132632, -0.127686, -0.0979338, -0.132632, 0.150226, -0.0979338, -0.0826322, -0.147007, -0.0979338, -0.0826322, 0.150226, -0.0979338, -0.0826322, -0.127686, -0.0979338, -0.132632, 0.130906, -0.0979338, -0.132632, -0.127686, 0.0959148, -0.132632, -0.147007, -0.0979338, -0.0826322, -0.147007, 0.0959148, -0.0826322, -0.147007, -0.0979338, -0.0826322, -0.127686, 0.0959148, -0.132632, -0.127686, -0.0979338, -0.132632, 0.130906, -0.0979338, -0.132632, 0.150226, 0.0959148, -0.0826322, 0.150226, -0.0979338, -0.0826322, 0.150226, 0.0959148, -0.0826322, 0.130906, -0.0979338, -0.132632, 0.130906, 0.0959148, -0.132632, -0.0476281, 0.0959148, -0.152632, 0.0508479, -0.0278755, -0.152632, -0.0476281, -0.0278755, -0.152632, 0.0508479, -0.0278755, -0.152632, -0.0476281, 0.0959148, -0.152632, 0.0508479, 0.0959148, -0.152632, -0.0476281, 0.0959148, -0.152632, -0.0476281, -0.0278755, -0.132632, -0.0476281, 0.0959148, -0.132632, -0.0476281, -0.0278755, -0.152632, 0.0508479, -0.0278755, -0.152632, 0.0508479, 0.0959148, -0.132632, 0.0508479, -0.0278755, -0.132632, 0.0508479, 0.0959148, -0.152632, 0.0508479, -0.0278755, -0.152632, -0.0476281, -0.0278755, -0.132632, -0.0476281, -0.0278755, -0.152632, 0.0508479, -0.0278755, -0.132632),
+		Vector3Array(0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, -0.553552, -0.726171, 0.407744, -0.462442, -0.792336, 0.397933, -0.454978, -0.797117, 0.396987, -0.557921, -0.722603, 0.408129, 0.233918, -0.902845, 0.360768, 0.131537, -0.931424, 0.339335, 0.248218, -0.8979, 0.363543, 0.11382, -0.935193, 0.335349, 0.348048, -0.85642, 0.381323, 0.248244, -0.897891, 0.363548, 0.358929, -0.851129, 0.383079, 0.233938, -0.902838, 0.360773, 0.553552, -0.726171, 0.407744, 0.462442, -0.792334, 0.397937, 0.557921, -0.722601, 0.408131, 0.454978, -0.797117, 0.396987, -0.348048, -0.85642, 0.381323, -0.248243, -0.897891, 0.363548, -0.233938, -0.902839, 0.36077, -0.358925, -0.851126, 0.383089, -0.113843, -0.935187, 0.335358, -0.061899, -0.944347, 0.323076, -0.0618906, -0.944347, 0.323075, -0.131528, -0.931426, 0.339332, 0.0, -0.951409, 0.307931, 0.0, -0.951409, 0.307931, 0.0, -0.951409, 0.307931, 0.0, -0.951409, 0.307931, 0.0, -0.951409, 0.307931, 0.0, -0.951409, 0.307931, 0.454975, -0.797122, 0.396982, 0.358929, -0.851126, 0.383085, 0.462441, -0.792337, 0.397933, 0.348051, -0.85642, 0.381321, -0.722232, -0.553581, 0.414642, -0.788461, -0.457599, 0.411014, -0.721652, -0.554333, 0.414649, -0.790672, -0.453968, 0.410794, -0.790676, -0.45396, 0.410794, -0.844222, -0.353663, 0.402756, -0.78846, -0.457603, 0.411012, -0.847383, -0.34681, 0.402077, -0.642863, -0.644569, 0.413833, -0.721663, -0.554319, 0.414648, -0.644568, -0.642955, 0.413692, -0.722255, -0.553556, 0.414636, -0.642936, -0.644629, 0.413627, -0.557945, -0.722587, 0.408125, -0.553566, -0.726157, 0.407751, -0.644581, -0.642945, 0.413687, -0.454976, -0.797123, 0.396978, -0.358927, -0.851125, 0.383089, -0.348051, -0.85642, 0.381319, -0.462439, -0.792337, 0.397936, -0.233918, -0.902845, 0.360768, -0.131539, -0.931424, 0.339334, -0.11382, -0.935193, 0.335349, -0.248219, -0.897899, 0.363545, 0.113844, -0.935188, 0.335356, 0.0618993, -0.944347, 0.323075, 0.131528, -0.931426, 0.339332, 0.0618909, -0.944347, 0.323076, 0.642938, -0.64463, 0.413621, 0.557943, -0.722587, 0.408128, 0.64458, -0.642947, 0.413687, 0.55357, -0.726159, 0.407742, 0.84738, -0.346813, 0.402079, 0.788462, -0.4576, 0.411011, 0.844223, -0.35366, 0.402756, 0.790674, -0.453963, 0.410794, 0.790677, -0.453958, 0.410794, 0.72165, -0.554336, 0.414648, 0.78846, -0.457603, 0.411012, 0.722238, -0.553573, 0.414643, 0.84737, 0.346837, 0.40208, 0.888119, 0.243416, 0.389863, 0.84423, 0.353643, 0.402757, 0.891478, 0.233161, 0.388463, 0.72225, -0.553559, 0.414642, 0.6445, -0.642894, 0.413892, 0.721662, -0.554318, 0.414652, 0.642932, -0.644635, 0.413624, 0.930882, -0.0610115, 0.36019, 0.919269, -0.127862, 0.372285, 0.930883, -0.0610112, 0.360188, 0.921999, -0.114233, 0.369958, 0.891472, 0.233176, 0.388467, 0.919276, 0.127826, 0.372281, 0.888128, 0.243386, 0.389861, 0.921999, 0.114244, 0.369955, 0.921998, -0.114244, 0.369956, 0.888128, -0.243386, 0.389861, 0.919276, -0.127826, 0.372279, 0.891471, -0.233175, 0.388471, 0.937367, 0.0, 0.348344, 0.937367, 0.0, 0.348344, 0.937367, 0.0, 0.348344, 0.937368, 0.0, 0.348341, 0.937368, 0.0, 0.348341, 0.937368, 0.0, 0.348341, 0.922, 0.114233, 0.369955, 0.930882, 0.0610111, 0.36019, 0.919268, 0.127862, 0.372287, 0.930883, 0.0610118, 0.360187, 0.891477, -0.233161, 0.388464, 0.84423, -0.353643, 0.402756, 0.88812, -0.243416, 0.389862, 0.847371, -0.346837, 0.402078, 0.790675, 0.453962, 0.410793, 0.844221, 0.353661, 0.402758, 0.78846, 0.457602, 0.411012, 0.847382, 0.346812, 0.402076, 0.557943, 0.722587, 0.408127, 0.642939, 0.644628, 0.413623, 0.644577, 0.642945, 0.413694, 0.553571, 0.726158, 0.407742, 0.248245, 0.897891, 0.363547, 0.348053, 0.856418, 0.381324, 0.358928, 0.851129, 0.383081, 0.233898, 0.902851, 0.360765, 0.722238, 0.553573, 0.414643, 0.788461, 0.4576, 0.411013, 0.721651, 0.554334, 0.414648, 0.790677, 0.453958, 0.410794, 0.462442, 0.792334, 0.397937, 0.553552, 0.726172, 0.407742, 0.557923, 0.722603, 0.408126, 0.454979, 0.797119, 0.396984, 0.642858, 0.644575, 0.413832, 0.721663, 0.554318, 0.414649, 0.64457, 0.642953, 0.413691, 0.722248, 0.553563, 0.41464, 0.358926, 0.851127, 0.383085, 0.454978, 0.797119, 0.396984, 0.462436, 0.792338, 0.397937, 0.348056, 0.856418, 0.38132, 0.131533, 0.931425, 0.339332, 0.233918, 0.902846, 0.360765, 0.248213, 0.897901, 0.363543, 0.11382, 0.935193, 0.335349, 0.0618948, 0.944347, 0.323075, 0.113848, 0.935186, 0.33536, 0.131523, 0.931427, 0.339332, 0.0618968, 0.944346, 0.323077, 0.0, 0.951409, 0.30793, 0.0, 0.951409, 0.30793, 0.0, 0.951409, 0.30793, 0.0, 0.951409, 0.30793, 0.0, 0.951409, 0.30793, 0.0, 0.951409, 0.30793, -0.0618945, 0.944347, 0.323076, -0.113847, 0.935186, 0.33536, -0.0618966, 0.944347, 0.323074, -0.131522, 0.931427, 0.339332, -0.358924, 0.851127, 0.383087, -0.454978, 0.797119, 0.396984, -0.348056, 0.856419, 0.381319, -0.462435, 0.792339, 0.397937, -0.722253, 0.553559, 0.414636, -0.6445, 0.642896, 0.41389, -0.721661, 0.55432, 0.41465, -0.642934, 0.644633, 0.413624, -0.847383, 0.34681, 0.402076, -0.788459, 0.457603, 0.411013, -0.844221, 0.353664, 0.402756, -0.790675, 0.453958, 0.410798, -0.891465, 0.233199, 0.388469, -0.844231, 0.353639, 0.402756, -0.888119, 0.243412, 0.389866, -0.847374, 0.346831, 0.402077, -0.922002, -0.114234, 0.36995, -0.930883, -0.0610074, 0.360188, -0.919266, -0.127855, 0.372295, -0.930883, -0.0610116, 0.360187, -0.557946, 0.722587, 0.408122, -0.642936, 0.644627, 0.41363, -0.553567, 0.726156, 0.407752, -0.644581, 0.642945, 0.413686, -0.930882, 0.0610113, 0.360189, -0.91927, 0.127858, 0.372284, -0.930883, 0.0610067, 0.360186, -0.921999, 0.114233, 0.369957, -0.462443, 0.792336, 0.397932, -0.553553, 0.726172, 0.407741, -0.454978, 0.797117, 0.396987, -0.557924, 0.722604, 0.408123, -0.847374, -0.34683, 0.402078, -0.88812, -0.243413, 0.389864, -0.844231, -0.353641, 0.402755, -0.891465, -0.233198, 0.38847, -0.921998, 0.114251, 0.369956, -0.88813, 0.243393, 0.389853, -0.919276, 0.127831, 0.372278, -0.891469, 0.233182, 0.388471, -0.790673, 0.453964, 0.410794, -0.721652, 0.554333, 0.414649, -0.788463, 0.457599, 0.41101, -0.722233, 0.553579, 0.414643, -0.937368, 0.0, 0.348342, -0.937368, 0.0, 0.348342, -0.937368, 0.0, 0.348342, -0.937367, 0.0, 0.348342, -0.937367, 0.0, 0.348342, -0.937367, 0.0, 0.348342, -0.248245, 0.897891, 0.363547, -0.348053, 0.856419, 0.381322, -0.233899, 0.902852, 0.360762, -0.358928, 0.851128, 0.383081, -0.89147, -0.233183, 0.388467, -0.919276, -0.127831, 0.372279, -0.88813, -0.243393, 0.389853, -0.921998, -0.114251, 0.369955, -0.131534, 0.931424, 0.339334, -0.233918, 0.902845, 0.360768, -0.11382, 0.935193, 0.335348, -0.248214, 0.8979, 0.363545, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 3.29166e-07, -1.0, 0.0, 3.29166e-07, -1.0, 0.0, 3.29166e-07, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -2.38632e-07, -1.0, 0.0, -2.38632e-07, -1.0, 0.0, -2.38632e-07, -1.0, 0.0, -2.05629e-07, -1.0, 0.0, -2.05629e-07, -1.0, 0.0, -2.05629e-07, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 5.39971e-07, -1.0, 0.0, 5.39971e-07, -1.0, 0.0, 5.39971e-07, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 2.35356e-07, 1.0, 0.0, 2.35356e-07, 1.0, 0.0, 2.35356e-07, 1.0, 0.0, -3.17183e-07, 1.0, 0.0, -3.17183e-07, 1.0, 0.0, -3.17183e-07, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, -0.932786, 0.0, -0.360431, -0.932786, 0.0, -0.360431, -0.932786, 0.0, -0.360431, -0.932786, 0.0, -0.360431, -0.932786, 0.0, -0.360431, -0.932786, 0.0, -0.360431, 0.932786, 0.0, -0.36043, 0.932786, 0.0, -0.36043, 0.932786, 0.0, -0.36043, 0.932786, 0.0, -0.360431, 0.932786, 0.0, -0.360431, 0.932786, 0.0, -0.360431, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0),
+		FloatArray(1.0, 0.0, 0.0, 1.0, 1.0, -1.23111e-08, 0.0, 1.0, 1.0, -7.7329e-08, 0.0, 1.0, 1.0, -8.59132e-08, 0.0, 1.0, 1.0, -1.65803e-07, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -5.36904e-08, 0.0, 1.0, 1.0, -8.61269e-09, 0.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -4.72207e-08, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -4.98056e-08, 0.0, 1.0, 0.607976, -0.0177597, 0.793757, 1.0, 0.632832, 0.0193979, 0.774046, 1.0, 0.63449, 0.0226224, 0.7726, 1.0, 0.606557, -0.0194152, 0.794802, 1.0, 0.877827, 0.0366011, -0.477576, 1.0, 0.892615, -0.0376126, -0.449247, 1.0, 0.874878, 0.0466639, -0.482091, 1.0, 0.894067, -0.0507734, -0.445046, 1.0, 0.769499, 0.0286506, -0.638005, 1.0, 0.789432, -0.0299828, -0.613105, 1.0, 0.766691, 0.0347838, -0.641074, 1.0, 0.791446, -0.0386854, -0.610013, 1.0, 0.607976, 0.0177597, -0.793757, 1.0, 0.632834, -0.0194009, -0.774044, 1.0, 0.606559, 0.0194143, -0.794802, 1.0, 0.634491, -0.0226223, -0.7726, 1.0, 0.769499, -0.02865, 0.638005, 1.0, 0.789432, 0.0299833, 0.613105, 1.0, 0.791446, 0.0386839, 0.610014, 1.0, 0.766694, -0.0347761, 0.64107, 1.0, 0.977754, -0.0456049, 0.204739, 1.0, 0.982138, -3.46897e-06, 0.188161, 1.0, 0.982138, 4.97487e-06, 0.18816, 1.0, 0.97563, -0.0609804, 0.210778, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.679387, 0.0225114, -0.733434, 1.0, 0.70236, -0.0240098, -0.711417, 1.0, 0.677196, 0.0259296, -0.735345, 1.0, 0.704369, -0.0295224, -0.70922, 1.0, 0.492118, 0.00995489, 0.870472, 1.0, 0.465769, -0.00774889, 0.884873, 1.0, 0.492315, 0.0101264, 0.870358, 1.0, 0.464752, -0.00825627, 0.885403, 1.0, 0.457741, 0.00725586, 0.889056, 1.0, 0.432393, -0.00532227, 0.90167, 1.0, 0.458647, 0.00785489, 0.888584, 1.0, 0.430651, -0.00591785, 0.902499, 1.0, 0.53171, 0.013382, 0.846821, 1.0, 0.504357, -0.010747, 0.863428, 1.0, 0.531087, 0.0127025, 0.847222, 1.0, 0.50412, -0.0109081, 0.863565, 1.0, 0.550881, -0.0139984, 0.834466, 1.0, 0.576979, 0.0157156, 0.816608, 1.0, 0.57811, 0.0173662, 0.815774, 1.0, 0.55029, -0.0145283, 0.834847, 1.0, 0.679385, -0.0225137, 0.733436, 1.0, 0.702363, 0.0240132, 0.711414, 1.0, 0.704368, 0.0295219, 0.70922, 1.0, 0.677199, -0.0259283, 0.735343, 1.0, 0.877826, -0.0366002, 0.477579, 1.0, 0.892615, 0.0376113, 0.449249, 1.0, 0.894066, 0.050774, 0.445048, 1.0, 0.874877, -0.0466634, 0.482091, 1.0, 0.977753, 0.0456057, -0.204741, 1.0, 0.982138, 3.57004e-06, -0.188161, 1.0, 0.97563, 0.0609805, -0.210778, 1.0, 0.982138, -5.38252e-06, -0.188162, 1.0, 0.550877, 0.0140022, -0.834469, 1.0, 0.576981, -0.0157179, -0.816607, 1.0, 0.55029, 0.0145278, -0.834847, 1.0, 0.578105, -0.0173596, -0.815778, 1.0, 0.430653, 0.00591577, -0.902498, 1.0, 0.458645, -0.00785295, -0.888585, 1.0, 0.432393, 0.0053235, -0.90167, 1.0, 0.457741, -0.00725774, -0.889056, 1.0, 0.464749, 0.00825589, -0.885404, 1.0, 0.492315, -0.0101254, -0.870358, 1.0, 0.465769, 0.00775032, -0.884873, 1.0, 0.492115, -0.00995501, -0.870473, 1.0, 0.427011, 0.00500894, -0.904233, 1.0, 0.40271, -0.00330501, -0.915322, 1.0, 0.428598, 0.00578595, -0.903477, 1.0, 0.400302, -0.00378788, -0.916375, 1.0, 0.504127, 0.0109057, -0.863561, 1.0, 0.53122, -0.0128357, -0.847137, 1.0, 0.504359, 0.0107427, -0.863427, 1.0, 0.531572, -0.0132427, -0.846909, 1.0, 0.360862, 5.98949e-07, -0.932619, 1.0, 0.375128, -0.0019816, -0.926971, 1.0, 0.36086, -3.58484e-06, -0.93262, 1.0, 0.372245, -0.00140579, -0.928133, 1.0, 0.398798, 0.00308576, -0.917033, 1.0, 0.37555, -0.00159186, -0.926801, 1.0, 0.401061, 0.00384886, -0.916043, 1.0, 0.372583, -0.00178806, -0.927997, 1.0, 0.372584, 0.00178735, -0.927997, 1.0, 0.40106, -0.00384785, -0.916044, 1.0, 0.375548, 0.00159305, -0.926801, 1.0, 0.398802, -0.00308759, -0.917032, 1.0, 0.348344, -2.2776e-07, -0.937367, 1.0, 0.348344, -2.2776e-07, -0.937367, 1.0, 0.348344, -2.2776e-07, -0.937367, 1.0, 0.348341, -6.20888e-07, -0.937368, 1.0, 0.348341, -6.20888e-07, -0.937368, 1.0, 0.348341, -6.20888e-07, -0.937368, 1.0, 0.372242, 0.00140667, -0.928135, 1.0, 0.360862, 6.66272e-09, -0.932619, 1.0, 0.375131, 0.00197879, -0.92697, 1.0, 0.360859, -1.7677e-07, -0.93262, 1.0, 0.400304, 0.00378763, -0.916375, 1.0, 0.428597, -0.00578536, -0.903477, 1.0, 0.402709, 0.00330543, -0.915322, 1.0, 0.42701, -0.00500829, -0.904233, 1.0, 0.457741, 0.00725543, -0.889056, 1.0, 0.432395, -0.00532146, -0.901669, 1.0, 0.458646, 0.00785456, -0.888584, 1.0, 0.430651, -0.00591841, -0.902499, 1.0, 0.57698, 0.0157168, -0.816607, 1.0, 0.550879, -0.0140017, -0.834468, 1.0, 0.550295, -0.0145234, -0.834844, 1.0, 0.578104, 0.0173583, -0.815778, 1.0, 0.789432, 0.0299814, -0.613105, 1.0, 0.769499, -0.0286537, -0.638005, 1.0, 0.766691, -0.0347828, -0.641073, 1.0, 0.791452, 0.038709, -0.610004, 1.0, 0.492117, 0.00995257, -0.870472, 1.0, 0.465769, -0.00775083, -0.884873, 1.0, 0.492315, 0.0101246, -0.870358, 1.0, 0.46475, -0.00825802, -0.885403, 1.0, 0.632835, 0.0194004, -0.774044, 1.0, 0.607973, -0.0177598, -0.793759, 1.0, 0.606557, -0.019419, -0.794803, 1.0, 0.634488, 0.0226217, -0.772602, 1.0, 0.53171, 0.0133838, -0.84682, 1.0, 0.504358, -0.0107457, -0.863428, 1.0, 0.531085, 0.0127021, -0.847223, 1.0, 0.504125, -0.0109037, -0.863562, 1.0, 0.70236, 0.0240124, -0.711417, 1.0, 0.679387, -0.0225107, -0.733435, 1.0, 0.677198, -0.0259245, -0.735344, 1.0, 0.704368, 0.0295199, -0.709221, 1.0, 0.892615, 0.037615, -0.449247, 1.0, 0.877826, -0.0366016, -0.477579, 1.0, 0.874879, -0.0466596, -0.482089, 1.0, 0.894067, 0.0507743, -0.445047, 1.0, 0.982138, 9.14634e-07, -0.188161, 1.0, 0.977753, -0.0456095, -0.20474, 1.0, 0.97563, -0.060975, -0.210778, 1.0, 0.982138, -8.33176e-07, -0.188161, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.982138, -9.40473e-07, 0.18816, 1.0, 0.977753, 0.0456084, 0.20474, 1.0, 0.982138, 9.49853e-07, 0.188161, 1.0, 0.975631, 0.0609751, 0.210777, 1.0, 0.702363, -0.0240136, 0.711413, 1.0, 0.679387, 0.0225117, 0.733435, 1.0, 0.704368, -0.029519, 0.709221, 1.0, 0.677201, 0.0259257, 0.735341, 1.0, 0.50412, 0.0109058, 0.863565, 1.0, 0.53122, -0.0128334, 0.847137, 1.0, 0.504359, 0.0107457, 0.863427, 1.0, 0.531569, -0.0132459, 0.846911, 1.0, 0.430651, 0.00591826, 0.902499, 1.0, 0.458647, -0.00785539, 0.888584, 1.0, 0.432393, 0.00532171, 0.90167, 1.0, 0.457745, -0.00725795, 0.889054, 1.0, 0.400312, 0.003786, 0.916371, 1.0, 0.428597, -0.00578608, 0.903477, 1.0, 0.402712, 0.00330373, 0.915321, 1.0, 0.427007, -0.00500733, 0.904234, 1.0, 0.372237, 0.00140663, 0.928137, 1.0, 0.36086, 7.02884e-07, 0.93262, 1.0, 0.375138, 0.00198058, 0.926967, 1.0, 0.36086, 3.82491e-07, 0.93262, 1.0, 0.576976, -0.015714, 0.81661, 1.0, 0.550883, 0.0139971, 0.834465, 1.0, 0.578111, -0.0173656, 0.815773, 1.0, 0.550288, 0.0145276, 0.834848, 1.0, 0.360861, 1.06908e-07, 0.93262, 1.0, 0.375128, -0.00197783, 0.926971, 1.0, 0.360859, 7.95814e-07, 0.93262, 1.0, 0.372244, -0.0014069, 0.928134, 1.0, 0.632832, -0.0193965, 0.774046, 1.0, 0.607973, 0.0177599, 0.793759, 1.0, 0.634489, -0.022624, 0.772601, 1.0, 0.606555, 0.0194211, 0.794805, 1.0, 0.427008, 0.00500804, 0.904234, 1.0, 0.402711, -0.0033044, 0.915321, 1.0, 0.428596, 0.00578561, 0.903478, 1.0, 0.400313, -0.00378551, 0.916371, 1.0, 0.372585, 0.00178801, 0.927996, 1.0, 0.401053, -0.00384602, 0.916047, 1.0, 0.375548, 0.00159306, 0.926802, 1.0, 0.398803, -0.00308685, 0.917032, 1.0, 0.464752, 0.00825839, 0.885402, 1.0, 0.492315, -0.0101254, 0.870358, 1.0, 0.465766, 0.00775127, 0.884874, 1.0, 0.492119, -0.00995277, 0.870471, 1.0, 0.348342, 6.12105e-07, 0.937368, 1.0, 0.348342, 6.12105e-07, 0.937368, 1.0, 0.348342, 6.12105e-07, 0.937368, 1.0, 0.348342, 2.12011e-07, 0.937368, 1.0, 0.348342, 2.12011e-07, 0.937368, 1.0, 0.348342, 2.12011e-07, 0.937368, 1.0, 0.789431, -0.0299823, 0.613107, 1.0, 0.769498, 0.0286551, 0.638006, 1.0, 0.791452, -0.0387071, 0.610004, 1.0, 0.76669, 0.0347814, 0.641074, 1.0, 0.398799, 0.00308625, 0.917033, 1.0, 0.375548, -0.00159177, 0.926802, 1.0, 0.401053, 0.00384714, 0.916047, 1.0, 0.372584, -0.00178776, 0.927997, 1.0, 0.892615, -0.0376156, 0.449248, 1.0, 0.877826, 0.0366, 0.477579, 1.0, 0.894066, -0.0507738, 0.445048, 1.0, 0.874878, 0.0466588, 0.482091, 1.0, -1.0, -3.09223e-08, 0.0, 1.0, -1.0, -2.03256e-08, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, -1.21396e-08, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, -4.8777e-08, 0.0, 1.0, -1.0, -4.8777e-08, 0.0, 1.0, -1.0, -4.8777e-08, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 9.7554e-08, 0.0, 1.0, -1.0, 9.7554e-08, 0.0, 1.0, -1.0, 9.7554e-08, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, -2.35356e-07, 9.56485e-08, 1.0, 1.0, -2.35356e-07, 9.56485e-08, 1.0, 1.0, -2.35356e-07, 9.56485e-08, 1.0, 1.0, 3.17183e-07, -1.28903e-07, 1.0, 1.0, 3.17183e-07, -1.28903e-07, 1.0, 1.0, 3.17183e-07, -1.28903e-07, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -0.360431, 0.0, 0.932786, 1.0, -0.360431, 0.0, 0.932786, 1.0, -0.360431, 0.0, 0.932786, 1.0, -0.360431, 0.0, 0.932786, 1.0, -0.360431, 0.0, 0.932786, 1.0, -0.360431, 0.0, 0.932786, 1.0, -0.36043, 0.0, -0.932786, 1.0, -0.36043, 0.0, -0.932786, 1.0, -0.36043, 0.0, -0.932786, 1.0, -0.360431, 0.0, -0.932786, 1.0, -0.360431, 0.0, -0.932786, 1.0, -0.360431, 0.0, -0.932786, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, -1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 1.0),
+		null, ; no Vertex Colors,
+		Vector2Array(16.1417, 1.0, 15.0742, -0.0675008, 11.8888, 1.0, 16.1417, -6.10683, 15.0742, -5.03933, 12.9563, -5.03933, 12.9563, -0.0675008, 11.8888, -6.10683, 0.393701, 1.0, 0.0, -6.10683, 0.0, 1.0, 0.393701, -6.10683, 16.1417, -9.62992, 11.8888, -8.08257, 16.1417, -8.08257, 11.8888, -9.62992, 5.65485, 1.50006, 6.35659, 0.997591, 5.57983, 1.37572, 6.4364, 1.12987, 2.29964, -2.94824, 1.85689, -3.66355, 1.72255, -3.58725, 2.42592, -3.01996, 2.08897, -3.98551, 1.51685, -4.61215, 1.40263, -4.50811, 2.19633, -4.08331, 1.73193, -5.58811, 1.03019, -6.09059, 0.950375, -5.9583, 1.80695, -5.71246, 7.19267, 2.54272, 7.76479, 1.91608, 7.08531, 2.44492, 7.87901, 2.02012, 9.24434, 0.370993, 9.46796, -0.43261, 9.10201, 0.342119, 9.61937, -0.401893, 2.47035, -1.11694, 9.64015, -1.94455, 2.2486, -1.94455, 9.64015, -1.94455, 2.47035, -1.11694, 9.4184, -1.11694, 1.89372, -4.85788, 1.24319, -5.41401, 1.14731, -5.29286, 1.98384, -4.97176, 4.24271, -1.88926, 5.10816, -2.00364, 5.06704, -2.15257, 4.28136, -1.74927, 3.91442, -3.10985, 4.77596, -3.19823, 4.74555, -3.3497, 3.94301, -2.96746, 4.61454, -0.705171, 5.48163, -0.852591, 5.42884, -0.997787, 4.66417, -0.568687, 5.11217, 0.534322, 5.84993, 0.0729952, 5.05051, 0.402835, 5.91553, 0.212875, 6.33282, 2.22937, 6.98335, 1.67325, 6.24269, 2.1155, 7.07923, 1.79439, 8.2407, 2.10389, 8.68345, 1.38858, 8.11442, 2.03217, 8.81779, 1.46488, 2.43206, -1.74151, 2.20844, -2.54512, 2.05703, -2.5144, 2.57438, -1.77039, 1.60154, -6.1898, 0.863778, -6.65113, 0.798184, -6.51125, 1.6632, -6.32129, 1.34805, -7.26838, 0.545512, -7.65062, 0.515101, -7.49915, 1.37664, -7.41076, 1.41399, -7.02893, 0.628313, -7.43222, 0.587195, -7.2833, 1.45264, -7.16892, 1.31562, -0.626712, 0.459415, -0.558887, 0.480011, -0.40577, 1.29626, -0.770642, 1.49719, -6.66933, 0.732515, -7.09843, 0.679723, -6.95323, 1.54681, -6.80581, 1.22516, -7.24212, 0.388866, -7.5809, 0.385219, -7.42645, 1.22859, -7.38731, 1.26702, -0.932455, 0.416998, -0.880812, 0.428662, -0.726757, 1.25605, -1.07727, 1.25605, -7.37824, 0.428662, -7.72875, 0.416998, -7.5747, 1.26702, -7.52305, 1.21187, -1.43258, 0.371856, -7.38132, 0.371856, -1.2486, 0.371856, -7.38132, 1.21187, -1.43258, 1.21187, -7.19734, 1.22859, -1.22281, 0.385219, -1.18367, 0.388866, -1.02922, 1.22516, -1.368, 1.29626, -7.3858, 0.480011, -7.75068, 0.459415, -7.59756, 1.31562, -7.52973, 1.37664, -0.313166, 0.515101, -0.224781, 0.545512, -0.0733082, 1.34805, -0.45555, 0.863778, 0.909977, 1.60154, 0.44865, 0.798184, 0.770098, 1.6632, 0.580137, 1.51685, 1.5381, 2.08897, 0.911472, 1.40263, 1.43407, 2.19633, 1.00927, 1.45264, -0.000249863, 0.587195, 0.114132, 0.628313, 0.263055, 1.41399, -0.140238, 1.03019, 1.19321, 1.73193, 0.690734, 0.950375, 1.06092, 1.80695, 0.815079, 1.54681, 0.301939, 0.679723, 0.449359, 0.732515, 0.594555, 1.49719, 0.165455, 1.24319, 1.41818, 1.89372, 0.862053, 1.14731, 1.29704, 1.98384, 0.975928, 1.85689, 1.46434, 2.29964, 0.74903, 1.72255, 1.38804, 2.42592, 0.82075, 2.20844, 1.0484, 2.43206, 0.244795, 2.05703, 1.01768, 2.57438, 0.273669, 9.64015, 0.671285, 2.47035, -0.156331, 2.2486, 0.671285, 2.47035, -0.156331, 9.64015, 0.671285, 9.4184, -0.156331, 9.46796, -1.06411, 9.24434, -1.86771, 9.10201, -1.83884, 9.61937, -1.09483, 6.98335, -5.66907, 6.33282, -6.2252, 6.24269, -6.11133, 7.07923, -5.79022, 4.66417, -5.93519, 5.42884, -5.50609, 5.48163, -5.65128, 4.61454, -5.7987, 3.94301, -4.75647, 4.74555, -4.37422, 4.77596, -4.5257, 3.91442, -4.61408, 3.63435, -3.96335, 4.4506, -3.59848, 4.4712, -3.7516, 3.61499, -3.81942, 3.0616, -6.71081, 3.90497, -6.74995, 3.90132, -6.9044, 3.06503, -6.56563, 5.84993, -5.81415, 5.11217, -6.27548, 5.05051, -6.14399, 5.91553, -5.95403, 3.06503, -2.04449, 3.90132, -1.70571, 3.90497, -1.86017, 3.0616, -1.89931, 6.35659, -5.89497, 5.65485, -6.39744, 5.57983, -6.2731, 6.4364, -6.02725, 3.61499, -4.33702, 4.4712, -4.40485, 4.4506, -4.55797, 3.63435, -4.19309, 3.34451, -3.05498, 4.1719, -2.70447, 4.18356, -2.85852, 3.33354, -2.91017, 4.28136, -5.41989, 5.06704, -5.0166, 5.10816, -5.16552, 4.24271, -5.27991, 2.92949, -7.19734, 3.7695, -1.2486, 3.7695, -7.38132, 3.7695, -1.2486, 2.92949, -7.19734, 2.92949, -1.43258, 7.76479, -4.99013, 7.19267, -5.61676, 7.08531, -5.51896, 7.87901, -5.09416, 3.33354, -5.54534, 4.18356, -5.59698, 4.1719, -5.75104, 3.34451, -5.40053, 8.68345, -3.58779, 8.2407, -4.3031, 8.11442, -4.23138, 8.81779, -3.66409, 0.0, 1.0, -2.21983, -0.499043, -16.1417, 1.0, 0.0, -9.62992, -2.21983, -8.13088, -2.21983, -8.13088, 0.0, -9.62992, -13.9219, -8.13088, -13.9219, -0.499043, -16.1417, -9.62992, -16.1417, -9.62992, -13.9219, -0.499043, -13.9219, -8.13088, -16.1417, -9.62992, -13.9219, -8.13088, 0.0, -9.62992, -2.98046, -0.499043, -6.13236, -3.25724, -13.1613, -0.499043, -6.13236, -3.25724, -2.98046, -0.499043, -2.98046, -8.13088, -6.13236, -3.25724, -2.98046, -8.13088, -6.13236, -8.13088, -10.0094, -3.25724, -13.1613, -0.499043, -6.13236, -3.25724, -13.1613, -0.499043, -10.0094, -3.25724, -13.1613, -8.13088, -13.1613, -8.13088, -10.0094, -3.25724, -10.0094, -8.13088, 13.9219, -6.87402, 2.98046, -8.84252, 2.21983, -6.87402, 2.98046, -8.84252, 13.9219, -6.87402, 6.13236, -8.84252, 6.13236, -8.84252, 13.9219, -6.87402, 6.13236, -9.62992, 6.13236, -9.62992, 13.9219, -6.87402, 10.0094, -8.84252, 10.0094, -8.84252, 13.1613, -8.84252, 10.0094, -9.62992, 6.13236, -9.62992, 10.0094, -8.84252, -2.98046, -8.84252, -13.9219, -6.87402, -2.21983, -6.87402, -13.9219, -6.87402, -2.98046, -8.84252, -13.1613, -8.84252, -10.2552, -8.13088, -8.14487, -0.499043, -8.14487, -8.13088, -8.14487, -0.499043, -10.2552, -8.13088, -10.2552, -0.499043, 4.43723, -0.499043, 2.32688, -8.13088, 2.32688, -0.499043, 2.32688, -8.13088, 4.43723, -0.499043, 4.43723, -8.13088, -6.13236, -8.13088, -10.0094, -3.25724, -6.13236, -3.25724, -10.0094, -3.25724, -6.13236, -8.13088, -10.0094, -8.13088, -10.6299, -8.13088, -9.84252, -3.25724, -9.84252, -8.13088, -10.6299, -3.25724, 10.6299, -3.25724, 9.84252, -8.13088, 9.84252, -3.25724, 10.6299, -8.13088, -10.0094, -9.62992, -6.13236, -8.84252, -6.13236, -9.62992, -10.0094, -8.84252),
+		null, ; No UV2,
+		null, ; No Bones,
+		null, ; No Weights,
+		IntArray(0, 2, 1, 1, 3, 0, 1, 4, 3, 4, 5, 3, 6, 1, 2, 2, 7, 6, 7, 5, 6, 7, 3, 5, 8, 10, 9, 9, 11, 8, 12, 14, 13, 13, 15, 12, 16, 18, 17, 17, 19, 16, 20, 22, 21, 21, 23, 20, 24, 26, 25, 25, 27, 24, 28, 30, 29, 29, 31, 28, 32, 34, 33, 33, 35, 32, 36, 38, 37, 37, 39, 36, 40, 42, 41, 43, 45, 44, 46, 48, 47, 47, 49, 46, 50, 52, 51, 51, 53, 50, 54, 56, 55, 55, 57, 54, 58, 60, 59, 59, 61, 58, 62, 64, 63, 63, 65, 62, 66, 68, 67, 67, 69, 66, 70, 72, 71, 71, 73, 70, 74, 76, 75, 75, 77, 74, 78, 80, 79, 79, 81, 78, 82, 84, 83, 83, 85, 82, 86, 88, 87, 87, 89, 86, 90, 92, 91, 91, 93, 90, 94, 96, 95, 95, 97, 94, 98, 100, 99, 99, 101, 98, 102, 104, 103, 103, 105, 102, 106, 108, 107, 107, 109, 106, 110, 112, 111, 113, 115, 114, 116, 118, 117, 117, 119, 116, 120, 122, 121, 121, 123, 120, 124, 126, 125, 125, 127, 124, 128, 130, 129, 129, 131, 128, 132, 134, 133, 133, 135, 132, 136, 138, 137, 137, 139, 136, 140, 142, 141, 141, 143, 140, 144, 146, 145, 145, 147, 144, 148, 150, 149, 149, 151, 148, 152, 154, 153, 153, 155, 152, 156, 158, 157, 157, 159, 156, 160, 162, 161, 163, 165, 164, 166, 168, 167, 167, 169, 166, 170, 172, 171, 171, 173, 170, 174, 176, 175, 175, 177, 174, 178, 180, 179, 179, 181, 178, 182, 184, 183, 183, 185, 182, 186, 188, 187, 187, 189, 186, 190, 192, 191, 191, 193, 190, 194, 196, 195, 195, 197, 194, 198, 200, 199, 199, 201, 198, 202, 204, 203, 203, 205, 202, 206, 208, 207, 207, 209, 206, 210, 212, 211, 211, 213, 210, 214, 216, 215, 217, 219, 218, 220, 222, 221, 221, 223, 220, 224, 226, 225, 225, 227, 224, 228, 230, 229, 229, 231, 228, 232, 234, 233, 233, 235, 232, 233, 236, 235, 237, 239, 238, 240, 233, 234, 234, 241, 240, 242, 244, 243, 245, 247, 246, 248, 250, 249, 251, 253, 252, 254, 256, 255, 257, 259, 258, 260, 262, 261, 263, 265, 264, 266, 268, 267, 269, 271, 270, 272, 274, 273, 275, 277, 276, 278, 279, 270, 280, 282, 281, 283, 285, 284, 286, 288, 287, 289, 291, 290, 292, 294, 293, 295, 297, 296, 298, 300, 299, 301, 303, 302, 304, 306, 305, 307, 309, 308, 308, 310, 307, 311, 313, 312, 312, 314, 311, 315, 317, 316, 316, 318, 315)
+	],
+	"morph_arrays":[]
+}
+
+[node type="Spatial" name="Scene"]
+
+[node name="televisionVintage(Clone)" type="MeshInstance" parent="."]
+
+mesh = SubResource(9)
+visible = true
+transform = Transform(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.20339, 0.136009, -0.117368)

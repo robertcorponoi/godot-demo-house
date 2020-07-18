@@ -1,0 +1,188 @@
+[gd_scene load_steps=23 format=2]
+
+[ext_resource path="res://house.material" type="Material" id=1]
+[ext_resource path="res://models/furniture/Couch.tscn" type="PackedScene" id=2]
+[ext_resource path="res://models/furniture/Stove.tscn" type="PackedScene" id=3]
+[ext_resource path="res://models/furniture/TvTable.tscn" type="PackedScene" id=4]
+[ext_resource path="res://models/furniture/GlassTable.tscn" type="PackedScene" id=5]
+[ext_resource path="res://models/furniture/CornerCouch.tscn" type="PackedScene" id=6]
+[ext_resource path="res://models/furniture/Fridge.tscn" type="PackedScene" id=7]
+[ext_resource path="res://models/furniture/SquareRug.tscn" type="PackedScene" id=8]
+[ext_resource path="res://models/furniture/ModernTv.tscn" type="PackedScene" id=9]
+[ext_resource path="res://models/furniture/KitchenBar.tscn" type="PackedScene" id=10]
+[ext_resource path="res://models/furniture/Bed.tscn" type="PackedScene" id=11]
+[ext_resource path="res://models/furniture/VintageTv.tscn" type="PackedScene" id=12]
+[ext_resource path="res://models/furniture/Drawer.tscn" type="PackedScene" id=13]
+[ext_resource path="res://models/furniture/RoundRug.tscn" type="PackedScene" id=14]
+[ext_resource path="res://models/furniture/Table.tscn" type="PackedScene" id=15]
+[ext_resource path="res://models/furniture/Chair.tscn" type="PackedScene" id=16]
+[ext_resource path="res://models/furniture/Sink.tscn" type="PackedScene" id=17]
+[ext_resource path="res://models/furniture/blender exports/ComputerDesk.escn" type="PackedScene" id=18]
+[ext_resource path="res://models/furniture/CushionedChair.tscn" type="PackedScene" id=19]
+[ext_resource path="res://models/furniture/Computer.tscn" type="PackedScene" id=20]
+[ext_resource path="res://models/furniture/Bookcase.tscn" type="PackedScene" id=21]
+[ext_resource path="res://models/furniture/Lamp.tscn" type="PackedScene" id=22]
+
+[node name="Main" type="Spatial"]
+
+[node name="HouseStructure" type="Spatial" parent="."]
+
+[node name="Foundation" type="CSGBox" parent="HouseStructure"]
+material_override = ExtResource( 1 )
+use_collision = true
+invert_faces = true
+width = 20.0
+height = 5.0
+depth = 20.0
+
+[node name="KitchenWall" type="CSGBox" parent="HouseStructure"]
+transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 5, 0, 0 )
+material_override = ExtResource( 1 )
+operation = 2
+width = 0.5
+height = 5.0
+depth = 10.0
+
+[node name="Doorway" type="CSGBox" parent="HouseStructure/KitchenWall"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 9.36762e-07, -0.501075, -0.595773 )
+operation = 2
+width = 0.979063
+height = 4.27572
+depth = 2.5
+
+[node name="BedroomWall" type="CSGBox" parent="HouseStructure"]
+transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, -5, 0, 0 )
+material_override = ExtResource( 1 )
+operation = 2
+width = 0.5
+height = 5.0
+depth = 10.0
+
+[node name="Doorway" type="CSGBox" parent="HouseStructure/BedroomWall"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 9.36762e-07, -0.501075, -0.595773 )
+operation = 2
+width = 0.979063
+height = 4.27572
+depth = 2.5
+
+[node name="FoundationWall" type="CSGBox" parent="HouseStructure"]
+material_override = ExtResource( 1 )
+operation = 2
+width = 0.5
+height = 5.0
+depth = 20.0
+
+[node name="Doorway" type="CSGBox" parent="HouseStructure/FoundationWall"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.501075, 5.15403 )
+operation = 2
+width = 0.979063
+height = 4.27572
+depth = 2.5
+
+[node name="LivingRoom" type="Spatial" parent="."]
+transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 4.93515, -2.50986, -5.5125 )
+
+[node name="CornerCouch" parent="LivingRoom" instance=ExtResource( 6 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0901097, 0, 0.221522 )
+
+[node name="Couch" parent="LivingRoom" instance=ExtResource( 2 )]
+transform = Transform( -1.62921e-07, 0, -1, 0, 1, 0, 1, 0, -1.62921e-07, 0.9, 0, 0.183734 )
+
+[node name="TvTable" parent="LivingRoom" instance=ExtResource( 4 )]
+transform = Transform( -1.62921e-07, 0, -1, 0, 1, 0, 1, 0, -1.62921e-07, -1.16311, 0, -0.254092 )
+
+[node name="ModernTv" parent="LivingRoom/TvTable" instance=ExtResource( 9 )]
+transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0.457248, 0.326685, -0.275116 )
+
+[node name="GlassTable" parent="LivingRoom" instance=ExtResource( 5 )]
+transform = Transform( -1.62921e-07, 0, -1, 0, 1, 0, 1, 0, -1.62921e-07, 0, 0, -0.250655 )
+
+[node name="SquareRug" parent="LivingRoom" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.242154, 0, 0.632527 )
+
+[node name="Kitchen" type="Spatial" parent="."]
+transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, 4.84203, -2.50985, 5.24967 )
+
+[node name="Fridge" parent="Kitchen" instance=ExtResource( 7 )]
+transform = Transform( -1, 0, -3.89414e-07, 0, 1, 0, 3.89414e-07, 0, -1, 1.25529, 5.96046e-08, 0.807706 )
+
+[node name="Stove" parent="Kitchen" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.533041, 0, 1.21612 )
+
+[node name="KitchenBar" parent="Kitchen" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.303927, 0, 1.22957 )
+
+[node name="KitchenBar2" parent="Kitchen" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.125376, 0, 1.22685 )
+
+[node name="KitchenBar3" parent="Kitchen" instance=ExtResource( 10 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.965922, 0, 1.22025 )
+
+[node name="KitchenBar4" parent="Kitchen" instance=ExtResource( 10 )]
+transform = Transform( -1.62921e-07, 0, -1, 0, 1, 0, 1, 0, -1.62921e-07, -1.17175, 0, 0.761551 )
+
+[node name="Table" parent="Kitchen" instance=ExtResource( 15 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.348874, 0, 0 )
+
+[node name="Chair" parent="Kitchen" instance=ExtResource( 16 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.169424, 0, -0.39901 )
+
+[node name="Chair4" parent="Kitchen" instance=ExtResource( 16 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.226792, 0, -0.39901 )
+
+[node name="Chair2" parent="Kitchen" instance=ExtResource( 16 )]
+transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, 0.364166, 0, -0.0772481 )
+
+[node name="Chair3" parent="Kitchen" instance=ExtResource( 16 )]
+transform = Transform( -1, 0, -3.25841e-07, 0, 1, 0, 3.25841e-07, 0, -1, -0.00279081, 0, -0.0772481 )
+
+[node name="SquareRug" parent="Kitchen" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.388239, 0, 0.24224 )
+
+[node name="Sink" parent="Kitchen" instance=ExtResource( 17 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.724019, 0, 0.731346 )
+
+[node name="Bedroom" type="Spatial" parent="."]
+transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, -5.53113, -2.48767, -5.02395 )
+
+[node name="Bed" parent="Bedroom" instance=ExtResource( 11 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35091, 0, -0.110086 )
+
+[node name="TvTable" parent="Bedroom" instance=ExtResource( 4 )]
+transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, -0.664206, 0, 0.435906 )
+
+[node name="VintageTv" parent="Bedroom/TvTable" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.204566, 0.336698, -0.107229 )
+
+[node name="Drawer" parent="Bedroom" instance=ExtResource( 13 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0583501, 0, -0.99827 )
+
+[node name="RoundRug" parent="Bedroom" instance=ExtResource( 14 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.573153, 0.0381918, 0.365889 )
+
+[node name="Office" type="Spatial" parent="."]
+transform = Transform( 4, 0, 0, 0, 4, 0, 0, 0, 4, -4.4951, -2.44726, 4.17345 )
+
+[node name="ComputerDesk" parent="Office" instance=ExtResource( 18 )]
+transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, -0.975312, 0.112416, 0.446192 )
+
+[node name="Computer" parent="Office/ComputerDesk" instance=ExtResource( 20 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.173547, 0.388347, -0.210744 )
+
+[node name="CushionedChair" parent="Office" instance=ExtResource( 19 )]
+transform = Transform( -2.03651e-07, 0, -1.25, 0, 1.25, 0, 1.25, 0, -2.03651e-07, -1.12141, 0, -0.0563774 )
+
+[node name="RoundRug" parent="Office" instance=ExtResource( 14 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.503324, 0, 0.657892 )
+
+[node name="Bookcase" parent="Office" instance=ExtResource( 21 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, -0.71366 )
+
+[node name="Bookcase2" parent="Office" instance=ExtResource( 21 )]
+transform = Transform( -1.62921e-07, 0, 1, 0, 1, 0, -1, 0, -1.62921e-07, 1.03852, 0, 1.38888 )
+
+[node name="Lamp" parent="Office" instance=ExtResource( 22 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.24253, 0, 1.25537 )
+
+[node name="Lamp2" parent="Office" instance=ExtResource( 22 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.26488, 0, -0.807181 )
